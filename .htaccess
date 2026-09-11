@@ -1,0 +1,33 @@
+DirectoryIndex index.html index.php
+
+Options -Indexes
+
+# Enable URL Rewriting for Production
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Get the base directory dynamically
+    RewriteBase /
+
+    # Redirect /youth/dashboard to /shared/youth/dashboard.php
+    RewriteRule ^youth/dashboard/?$ shared/youth/dashboard.php [L]
+    
+    # Redirect /youth/* to /shared/youth/*
+    RewriteRule ^youth/(.*)$ shared/youth/$1 [L]
+    
+    # Redirect /admin to /admin2/dashboard.php
+    RewriteRule ^admin/?$ admin2/dashboard.php [L]
+    
+    # Redirect /org-president to /org-president/dashboard.php
+    RewriteRule ^org-president/?$ org-president/dashboard.php [L]
+
+    # Don't rewrite real files or directories (including index.html and index.php)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # For root path, don't rewrite - let DirectoryIndex handle it
+    RewriteCond %{REQUEST_URI} !^/$
+    
+    # Only apply catch-all for non-existent paths
+    RewriteRule ^(.*)$ index.html [L]
+</IfModule>
