@@ -13,8 +13,7 @@ RUN a2enmod rewrite php8.1
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 COPY . /var/www/html/
-RUN chown -R www-data:www-data /var/www/html \
-    && rm -f /var/www/html/index.html
+RUN chown -R www-data:www-data /var/www/html
 
 RUN echo '<Directory /var/www/html>\nAllowOverride All\nRequire all granted\n</Directory>' \
     > /etc/apache2/conf-available/override.conf && a2enconf override
