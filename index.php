@@ -1,10 +1,8 @@
 <?php
-// On Railway/production, serve the index.html directly
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Pragma: no-cache');
 if (file_exists(__DIR__ . '/index.html')) {
     readfile(__DIR__ . '/index.html');
     exit;
 }
-
-// Fallback for local XAMPP environment
-header('Location: /');
-exit;
+echo 'Site loading...';
