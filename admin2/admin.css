@@ -1,4 +1,7 @@
 ﻿*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{scrollbar-width:none;-ms-overflow-style:none;overflow-y:auto}
+html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0}
+*::-webkit-scrollbar{width:0 !important;height:0 !important}
 :root{--blue:#1565c0;--blue-dark:#0d3b6e;--blue-light:#1e88e5;--blue-pale:#e3f2fd;--green:#2e7d32;--green-light:#43a047;--green-pale:#e8f5e9;--teal:#00796b;--teal-pale:#e0f2f1;--orange:#e65100;--orange-pale:#fff3e0;--red:#c62828;--red-pale:#ffebee;--white:#fff;--gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;--gray-400:#94a3b8;--gray-600:#475569;--gray-800:#1e293b;--sidebar-w:255px}
 body{font-family:Inter,sans-serif;color:var(--gray-800);background:var(--gray-50);display:flex;min-height:100vh}
 a{text-decoration:none;color:inherit}
@@ -208,10 +211,6 @@ a{text-decoration:none;color:inherit}
 
 /* Upcoming Events List */
 .upcoming-list{padding:16px;max-height:580px;overflow-y:auto}
-.upcoming-list::-webkit-scrollbar{width:6px}
-.upcoming-list::-webkit-scrollbar-track{background:#f1f5f9;border-radius:3px}
-.upcoming-list::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
-.upcoming-list::-webkit-scrollbar-thumb:hover{background:#94a3b8}
 
 .upcoming-no-events{text-align:center;padding:40px 20px;color:#94a3b8}
 .upcoming-no-events i{font-size:3rem;margin-bottom:12px;opacity:.5}
