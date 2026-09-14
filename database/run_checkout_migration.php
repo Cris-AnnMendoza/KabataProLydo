@@ -1,7 +1,7 @@
 <?php
 /**
  * Add missing columns to event_checkins table
- * Run this once: http://localhost/LYDO/lydo-system/database/run_checkout_migration.php
+ * Run this once: http://localhost/database/run_checkout_migration.php
  */
 
 require_once __DIR__ . '/../shared/config.php';

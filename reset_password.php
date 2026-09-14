@@ -109,13 +109,13 @@ body{font-family:'Inter',sans-serif;min-height:100vh;background:linear-gradient(
 
     <?php if ($error): ?>
     <div class="alert error"><i class="fas fa-exclamation-circle"></i><?= htmlspecialchars($error) ?></div>
-    <a href="/LYDO/lydo-system/forgot_password.php" class="btn-submit" style="text-decoration:none;margin-top:0">
+    <a href="/forgot_password.php" class="btn-submit" style="text-decoration:none;margin-top:0">
       <i class="fas fa-redo"></i> Request New Link
     </a>
 
     <?php elseif ($success): ?>
     <div class="alert success"><i class="fas fa-check-circle"></i><?= htmlspecialchars($success) ?></div>
-    <a href="/LYDO/lydo-system/login.php" class="btn-submit" style="text-decoration:none;background:linear-gradient(135deg,#2e7d32,#43a047)">
+    <a href="/login.php" class="btn-submit" style="text-decoration:none;background:linear-gradient(135deg,#2e7d32,#43a047)">
       <i class="fas fa-sign-in-alt"></i> Go to Login
     </a>
 
@@ -153,7 +153,7 @@ body{font-family:'Inter',sans-serif;min-height:100vh;background:linear-gradient(
     </form>
     <?php endif; ?>
 
-    <a href="/LYDO/lydo-system/login.php" class="back-link">
+    <a href="/login.php" class="back-link">
       <i class="fas fa-arrow-left"></i> Back to Login
     </a>
   </div>

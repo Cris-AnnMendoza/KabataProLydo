@@ -11,7 +11,7 @@ $initials = strtoupper(substr($admin['full_name'],0,1) . (strpos($admin['full_na
 ?>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <div class="s-icon" style="background:none;overflow:hidden;padding:2px"><img src="/LYDO/lydo-logo.png" alt="LYDO" style="width:100%;height:100%;object-fit:contain"/></div>
+    <div class="s-icon" style="background:none;overflow:hidden;padding:2px"><img src="/lydo logo.png" alt="LYDO" style="width:100%;height:100%;object-fit:contain"/></div>
     <div>
       <span class="s-main">LYDO Admin</span>
       <span class="s-sub">Sta. Cruz, Laguna</span>

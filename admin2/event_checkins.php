@@ -69,7 +69,7 @@ $stmt->execute([$eventId]);
 $checkins = $stmt->fetchAll();
 
 $eventDate = date('F j, Y', strtotime($event['event_date']));
-$photoBase = '/LYDO/lydo-system/shared/uploads/event_photos/';
+$photoBase = '/shared/uploads/event_photos/';
 ?>
 <!DOCTYPE html>
 <html lang="en">

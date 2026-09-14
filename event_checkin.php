@@ -71,8 +71,8 @@ if (!$event['checkin_open']) {
 
 // If not logged in, redirect to login then back here
 if (empty($_SESSION['user_id'])) {
-    $_SESSION['checkin_redirect'] = '/LYDO/lydo-system/event_checkin.php?token=' . urlencode($token);
-    header('Location: /LYDO/lydo-system/login.php');
+    $_SESSION['checkin_redirect'] = '/event_checkin.php?token=' . urlencode($token);
+    header('Location: /login.php');
     exit;
 }
 
@@ -199,7 +199,7 @@ body{font-family:'Inter',sans-serif;min-height:100vh;background:linear-gradient(
 
 <div class="card">
   <div class="card-top">
-    <div class="logo"><img src="/LYDO/lydo-logo.png" alt="LYDO" style="width:70%;height:70%;object-fit:contain"/></div>
+    <div class="logo"><img src="/lydo logo.png" alt="LYDO" style="width:70%;height:70%;object-fit:contain"/></div>
     <h1>LYDO Event Check-in</h1>
     <p>Local Youth Development Office · Sta. Cruz, Laguna</p>
   </div>

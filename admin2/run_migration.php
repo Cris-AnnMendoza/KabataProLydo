@@ -1,7 +1,7 @@
 <?php
 /**
  * One-time migration runner.
- * Visit: http://localhost/LYDO/lydo-system/admin2/run_migration.php
+ * Visit: http://localhost/admin2/run_migration.php
  * Delete this file after running.
  */
 require_once 'config.php';

@@ -189,7 +189,7 @@ try {
     
     echo "🎯 <strong>Your admin dashboard should now work!</strong>\n\n";
     echo "📍 Dashboard URL:\n";
-    echo "   <a href='dashboard.php'>http://localhost/LYDO/lydo-system/admin2/dashboard.php</a>\n\n";
+    echo "   <a href='dashboard.php'>http://localhost/admin2/dashboard.php</a>\n\n";
     
 } catch (Exception $e) {
     echo "<span class='error'>❌ ERROR: " . htmlspecialchars($e->getMessage()) . "</span>\n\n";

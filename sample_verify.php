@@ -459,7 +459,7 @@ body {
             </div>
         <?php endif; ?>
         
-        <a href="/LYDO/sample_certificate.php" class="btn-back">
+        <a href="/sample_certificate.php" class="btn-back">
             <i class="fas fa-certificate"></i>
             Back to Sample Certificate
         </a>

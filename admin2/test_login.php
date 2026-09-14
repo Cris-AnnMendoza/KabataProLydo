@@ -86,7 +86,7 @@ try {
             echo "   The password 'Admin@1234' works correctly.\n\n";
             
             echo "🎯 You can now login with:\n";
-            echo "   URL: http://localhost/LYDO/lydo-system/login.php\n";
+            echo "   URL: http://localhost/login.php\n";
             echo "   Email: admin@lydo.gov.ph\n";
             echo "   Password: Admin@1234\n";
         } else {

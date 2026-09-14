@@ -7,7 +7,7 @@
 require_once __DIR__ . '/shared/config.php';
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: /LYDO/lydo-system/login.php');
+    header('Location: /login.php');
     exit;
 }
 
@@ -33,7 +33,7 @@ if (!$cert) {
     die('<div style="font-family:sans-serif;padding:40px;text-align:center;color:#c62828">
         <h2>Certificate Not Found</h2>
         <p>You have not checked out of this event yet, or the certificate does not exist.</p>
-        <a href="/LYDO/lydo-system/shared/youth/events.php" style="color:#1565c0">← Back to Events</a>
+        <a href="/shared/youth/events.php" style="color:#1565c0">← Back to Events</a>
     </div>');
 }
 
@@ -68,7 +68,7 @@ $timeOutFull= $checkin && $checkin['checked_out_at'] ? date('F j, Y g:i A', strt
 // Generate a verification hash (HMAC so it can't be faked)
 $verifySecret = 'LYDO_VERIFY_2026_' . DB_NAME;
 $verifyHash   = substr(hash_hmac('sha256', $certNo . $userId . $cert['event_id'], $verifySecret), 0, 16);
-$verifyUrl    = 'http://' . $_SERVER['HTTP_HOST'] . '/LYDO/lydo-system/verify_cert.php?cert=' . urlencode($certNo) . '&h=' . $verifyHash;
+$verifyUrl    = 'http://' . $_SERVER['HTTP_HOST'] . '/verify_cert.php?cert=' . urlencode($certNo) . '&h=' . $verifyHash;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -149,7 +149,7 @@ body{font-family:'Inter',sans-serif;background:#e8ecf0;display:flex;flex-directi
 <body>
 
 <div class="print-bar">
-  <a href="/LYDO/lydo-system/shared/youth/events.php" class="btn-back"><i class="fas fa-arrow-left"></i> Back</a>
+  <a href="/shared/youth/events.php" class="btn-back"><i class="fas fa-arrow-left"></i> Back</a>
   <span>Certificate — <?= htmlspecialchars($event['title']) ?></span>
   <button class="btn-p" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
   <button class="btn-p" onclick="window.print()"><i class="fas fa-download"></i> Save as PDF</button>
@@ -169,7 +169,7 @@ body{font-family:'Inter',sans-serif;background:#e8ecf0;display:flex;flex-directi
     <!-- Header -->
     <div class="cert-header">
       <div class="cert-seal" style="background:linear-gradient(135deg,#0d3b6e,#1565c0)">
-        <img src="/LYDO/lydo-logo.png" alt="LYDO" style="width:80%;height:80%;object-fit:contain"/>
+        <img src="/lydo logo.png" alt="LYDO" style="width:80%;height:80%;object-fit:contain"/>
       </div>
       <div>
         <div class="cert-org-main">Local Youth Development Office</div>

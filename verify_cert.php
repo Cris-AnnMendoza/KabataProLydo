@@ -430,7 +430,7 @@ body {
             </div>
         <?php endif; ?>
         
-        <a href="/LYDO/" class="btn-back">
+        <a href="/" class="btn-back">
             <i class="fas fa-home"></i>
             Back to LYDO Portal
         </a>

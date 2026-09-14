@@ -8,7 +8,7 @@ function isLoggedIn(): bool {
 
 function requireLogin(): void {
     if (!isLoggedIn()) {
-        header('Location: /LYDO/lydo-system/login.php');
+        header('Location: /login.php');
         exit;
     }
 }

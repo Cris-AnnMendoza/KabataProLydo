@@ -47,7 +47,7 @@ if ($host === 'localhost' || $host === '127.0.0.1' || strpos($host, 'localhost:'
     }
     $host = $localIp;
 }
-$baseUrl = 'http://' . $host . '/LYDO/lydo-system/event_checkin.php?token=' . urlencode($event['qr_token']);
+$baseUrl = 'http://' . $host . '/event_checkin.php?token=' . urlencode($event['qr_token']);
 
 // Generate rotating QR URL (30-second window)
 $window = floor(time() / 30);

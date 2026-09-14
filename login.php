@@ -247,7 +247,7 @@ body{font-family:'Inter',sans-serif;min-height:100vh;display:grid;grid-template-
 <!-- LEFT -->
 <div class="left">
   <div class="left-content">
-    <div class="logo-wrap"><img src="/LYDO/lydo-logo.png" alt="LYDO" style="width:70%;height:70%;object-fit:contain"/></div>
+    <div class="logo-wrap"><img src="/lydo logo.png" alt="LYDO" style="width:70%;height:70%;object-fit:contain"/></div>
     <h1>LYDO</h1>
     <p class="org">Local Youth Development Office</p>
     <div class="divider"></div>
@@ -265,7 +265,7 @@ body{font-family:'Inter',sans-serif;min-height:100vh;display:grid;grid-template-
 
 <!-- RIGHT -->
 <div class="right">
-        <a href="/LYDO/index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+        <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
 
   <div class="form-box">
     <div class="form-icon"><i class="fas fa-sign-in-alt"></i></div>
@@ -318,7 +318,7 @@ body{font-family:'Inter',sans-serif;min-height:100vh;display:grid;grid-template-
         <label class="chk-label">
           <input type="checkbox" name="remember"/> Remember Me
         </label>
-        <a href="/LYDO/lydo-system/forgot_password.php" class="forgot">Forgot Password?</a>
+        <a href="/forgot_password.php" class="forgot">Forgot Password?</a>
       </div>
 
       <button type="submit" class="btn-login">
@@ -328,7 +328,7 @@ body{font-family:'Inter',sans-serif;min-height:100vh;display:grid;grid-template-
 
     <div class="divider-or">or</div>
     <p class="register-link">
-      New youth member? <a href="/LYDO/index.html#get-started">Register here</a>
+      New youth member? <a href="/#get-started">Register here</a>
     </p>
   </div>
 </div>

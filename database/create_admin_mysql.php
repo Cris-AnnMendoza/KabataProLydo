@@ -1,7 +1,7 @@
 <?php
 /**
  * Create MySQL Admin User
- * Run this: http://localhost/LYDO/lydo-system/database/create_admin_mysql.php
+ * Run this: http://localhost/database/create_admin_mysql.php
  */
 
 $mysqli = new mysqli('127.0.0.1', 'root', '', 'local_youth_development_db');

@@ -135,7 +135,7 @@ try {
     echo "✅ ALL DATABASE FIXES COMPLETED!\n";
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
     echo "🎯 Dashboard should now work!\n";
-    echo "   http://localhost/LYDO/lydo-system/admin2/dashboard.php\n\n";
+    echo "   http://localhost/admin2/dashboard.php\n\n";
     
 } catch (Exception $e) {
     echo "❌ Error: " . $e->getMessage() . "\n";

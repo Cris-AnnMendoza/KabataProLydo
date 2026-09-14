@@ -228,9 +228,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <div class="login-footer">
             <div class="divider">Or login as</div>
-            <a href="/LYDO/lydo-system/login.php"><i class="fas fa-user-shield"></i> LYDO Admin/Staff</a>
+            <a href="/login.php"><i class="fas fa-user-shield"></i> LYDO Admin/Staff</a>
             <span style="margin: 0 10px; color: #cbd5e1;">|</span>
-            <a href="/LYDO/index.html"><i class="fas fa-user"></i> Youth Member</a>
+            <a href="/"><i class="fas fa-user"></i> Youth Member</a>
         </div>
     </div>
 </body>

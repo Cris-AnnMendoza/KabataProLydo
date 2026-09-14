@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['id'
                       </div>
                       
                       <center>
-                        <a href='http://localhost/LYDO/lydo-system/login.php' class='btn'>
+                        <a href='http://localhost/login.php' class='btn'>
                           🚀 Login to Your Account
                         </a>
                       </center>
@@ -183,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['id'
                       </div>
                       
                       <center>
-                        <a href='http://localhost/LYDO/lydo-system/org-president/login.php' class='btn'>
+                        <a href='http://localhost/org-president/login.php' class='btn'>
                           🚀 Login to President Dashboard
                         </a>
                       </center>

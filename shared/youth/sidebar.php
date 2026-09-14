@@ -23,7 +23,7 @@ function youthNav(string $file, string $icon, string $label, int $badge = 0): vo
 ?>
 <aside class="y-sidebar" id="ySidebar">
   <div class="y-sidebar-logo">
-    <div class="y-logo-icon" style="background:none;overflow:hidden"><img src="/LYDO/lydo-logo.png" alt="LYDO" style="width:100%;height:100%;object-fit:contain"/></div>
+    <div class="y-logo-icon" style="background:none;overflow:hidden"><img src="/lydo logo.png" alt="LYDO" style="width:100%;height:100%;object-fit:contain"/></div>
     <div class="y-logo-text">
       <span class="y-logo-main">LYDO</span>
       <span class="y-logo-sub">Sta. Cruz, Laguna</span>

@@ -380,7 +380,7 @@ try{$upS=$pdo->query('SELECT e.*,o.name as org_name FROM events e LEFT JOIN orga
                 <span class="badge-merit pending"><i class="fas fa-hourglass-half"></i> Check out to earn merit points</span>
               <?php endif; ?>
               <?php if(!empty($ci['cert_id'])&&$hasOut): ?>
-                <a href="/LYDO/lydo-system/event_cert_view.php?cert_id=<?= (int)$ci['cert_id'] ?>" target="_blank"
+                <a href="/event_cert_view.php?cert_id=<?= (int)$ci['cert_id'] ?>" target="_blank"
                    style="font-size:.78rem;color:var(--blue);font-weight:600;display:inline-flex;align-items:center;gap:4px;text-decoration:none">
                   <i class="fas fa-certificate"></i> View Certificate
                 </a>

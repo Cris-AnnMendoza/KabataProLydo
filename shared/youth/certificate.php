@@ -158,7 +158,7 @@ body{font-family:'Inter',sans-serif;background:#f0f0f0;display:flex;flex-directi
 
     <!-- Header -->
     <div class="cert-header">
-      <div class="cert-seal" style="background:#fff;border:2px solid #e2e8f0;padding:4px"><img src="/LYDO/lydo-logo.png" alt="LYDO" style="width:100%;height:100%;object-fit:contain"/></div>
+      <div class="cert-seal" style="background:#fff;border:2px solid #e2e8f0;padding:4px"><img src="/lydo logo.png" alt="LYDO" style="width:100%;height:100%;object-fit:contain"/></div>
       <div class="cert-org">
         <div class="cert-org-main">Local Youth Development Office</div>
         <div class="cert-org-sub">Municipal Government of Sta. Cruz, Laguna</div>

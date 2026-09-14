@@ -6,5 +6,5 @@ if (file_exists(__DIR__ . '/index.html')) {
 }
 
 // Fallback for local XAMPP environment
-header('Location: /LYDO/index.html');
+header('Location: /');
 exit;

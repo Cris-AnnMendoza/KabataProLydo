@@ -3,7 +3,7 @@
  * CHECK-IN/CHECK-OUT SYSTEM VERIFICATION SCRIPT
  * 
  * Run this file para makita kung complete ang setup
- * Access: http://localhost/LYDO/lydo-system/admin2/test_checkin_setup.php
+ * Access: http://localhost/admin2/test_checkin_setup.php
  */
 
 require_once 'config.php';

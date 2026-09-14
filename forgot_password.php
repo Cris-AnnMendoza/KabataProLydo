@@ -231,7 +231,7 @@ body{font-family:'Inter',sans-serif;min-height:100vh;background:linear-gradient(
 <div class="card">
   <div class="card-top">
     <div class="icon-wrap" style="background:#fff;padding:4px">
-      <img src="/LYDO/lydo-logo.png" alt="LYDO" style="width:100%;height:100%;object-fit:contain"/>
+      <img src="/lydo logo.png" alt="LYDO" style="width:100%;height:100%;object-fit:contain"/>
     </div>
     <h1>
       <?php if ($step === 'done'): ?>Password Changed!
@@ -279,7 +279,7 @@ body{font-family:'Inter',sans-serif;min-height:100vh;background:linear-gradient(
     <!-- SUCCESS -->
     <div class="success-icon">✅</div>
     <div class="alert success" style="justify-content:center;text-align:center"><i class="fas fa-check-circle"></i><?= htmlspecialchars($success) ?></div>
-    <a href="/LYDO/lydo-system/login.php" class="btn-submit green" style="text-decoration:none">
+    <a href="/login.php" class="btn-submit green" style="text-decoration:none">
       <i class="fas fa-sign-in-alt"></i> Go to Login
     </a>
 
@@ -353,7 +353,7 @@ body{font-family:'Inter',sans-serif;min-height:100vh;background:linear-gradient(
     </form>
     <?php endif; ?>
 
-    <a href="/LYDO/lydo-system/login.php" class="back-link">
+    <a href="/login.php" class="back-link">
       <i class="fas fa-arrow-left"></i> Back to Login
     </a>
   </div>

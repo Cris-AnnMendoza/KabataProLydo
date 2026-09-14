@@ -1,7 +1,7 @@
 <?php
 /**
  * Reset to MySQL - Clean Database Setup
- * Run this: http://localhost/LYDO/lydo-system/database/reset_to_mysql.php
+ * Run this: http://localhost/database/reset_to_mysql.php
  */
 
 echo "<h1>🔄 Resetting to MySQL Database</h1>";

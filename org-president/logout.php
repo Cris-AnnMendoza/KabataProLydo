@@ -31,6 +31,6 @@ if (isset($_COOKIE[session_name()])) {
 session_destroy();
 
 // Redirect to login
-header('Location: /LYDO/lydo-system/login.php');
+header('Location: /login.php');
 exit;
 ?>

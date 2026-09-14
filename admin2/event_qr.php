@@ -167,7 +167,7 @@ if ($host === 'localhost' || $host === '127.0.0.1' || strpos($host, 'localhost:'
     }
     $host = $localIp;
 }
-$checkinUrl = 'http://' . $host . '/LYDO/lydo-system/event_checkin.php?token=' . urlencode($event['qr_token']);
+$checkinUrl = 'http://' . $host . '/event_checkin.php?token=' . urlencode($event['qr_token']);
 
 // ── Rotating QR URL (changes every 30 seconds) ──
 function getRotatingQRUrl(string $baseUrl, int $eventId, string $qrToken): string {
@@ -690,7 +690,7 @@ function showPhotos(data) {
   // Check-in photo
   const checkinContainer = document.getElementById('checkinPhotoContainer');
   if (data.checkin_photo) {
-    checkinContainer.innerHTML = '<img src="/LYDO/lydo-system/shared/uploads/event_photos/' + data.checkin_photo + '" alt="Check-in photo" style="max-width:100%;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1)" onerror="this.parentElement.innerHTML=\'<div class=\\\'photo-placeholder\\\'><i class=\\\'fas fa-exclamation-triangle\\\' style=\\\'font-size:2.5rem;margin-bottom:10px;display:block;color:#ef9a9a\\\'></i><div style=\\\'font-size:.85rem;color:#c62828\\\'>Photo file not found</div></div>\'">';
+    checkinContainer.innerHTML = '<img src="/shared/uploads/event_photos/' + data.checkin_photo + '" alt="Check-in photo" style="max-width:100%;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1)" onerror="this.parentElement.innerHTML=\'<div class=\\\'photo-placeholder\\\'><i class=\\\'fas fa-exclamation-triangle\\\' style=\\\'font-size:2.5rem;margin-bottom:10px;display:block;color:#ef9a9a\\\'></i><div style=\\\'font-size:.85rem;color:#c62828\\\'>Photo file not found</div></div>\'">';
   } else {
     checkinContainer.innerHTML = '<div class="photo-placeholder"><i class="fas fa-image" style="font-size:2.5rem;margin-bottom:10px;display:block"></i><div style="font-size:.85rem">No photo uploaded</div></div>';
   }
@@ -698,7 +698,7 @@ function showPhotos(data) {
   // Check-out photo
   const checkoutContainer = document.getElementById('checkoutPhotoContainer');
   if (data.checkout_photo) {
-    checkoutContainer.innerHTML = '<img src="/LYDO/lydo-system/shared/uploads/event_photos/' + data.checkout_photo + '" alt="Check-out photo" style="max-width:100%;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1)" onerror="this.parentElement.innerHTML=\'<div class=\\\'photo-placeholder\\\'><i class=\\\'fas fa-exclamation-triangle\\\' style=\\\'font-size:2.5rem;margin-bottom:10px;display:block;color:#ef9a9a\\\'></i><div style=\\\'font-size:.85rem;color:#c62828\\\'>Photo file not found</div></div>\'">';
+    checkoutContainer.innerHTML = '<img src="/shared/uploads/event_photos/' + data.checkout_photo + '" alt="Check-out photo" style="max-width:100%;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1)" onerror="this.parentElement.innerHTML=\'<div class=\\\'photo-placeholder\\\'><i class=\\\'fas fa-exclamation-triangle\\\' style=\\\'font-size:2.5rem;margin-bottom:10px;display:block;color:#ef9a9a\\\'></i><div style=\\\'font-size:.85rem;color:#c62828\\\'>Photo file not found</div></div>\'">';
   } else {
     checkoutContainer.innerHTML = '<div class="photo-placeholder"><i class="fas fa-image" style="font-size:2.5rem;margin-bottom:10px;display:block"></i><div style="font-size:.85rem">No photo uploaded</div></div>';
   }
