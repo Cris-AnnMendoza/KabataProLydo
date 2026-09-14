@@ -444,6 +444,11 @@ img { max-width: 100%; }
 }
 .animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
 
+/* Force visibility for key sections that should always show */
+.section { display: block; }
+.auth-card { opacity: 1; transform: translateY(0); }
+.auth-card.animate-on-scroll { opacity: 1; transform: translateY(0); }
+
 /* ===== NOTIFICATION ===== */
 .notification-overlay {
   position: fixed; bottom: -400px; right: 20px; z-index: 3000;
@@ -739,13 +744,13 @@ img { max-width: 100%; }
   display: flex; align-items: center; justify-content: center;
   padding: 12px; opacity: 0; pointer-events: none;
   transition: opacity .3s ease;
+  overflow: auto;
 }
 .modal-overlay.open { opacity: 1; pointer-events: all; }
 
 .modal {
   background: var(--white); border-radius: var(--radius-lg);
   width: 100%; max-width: 900px;
-  /* Allow modal to be taller for scrolling */
   min-height: 600px;
   max-height: 90vh;
   display: flex; flex-direction: column;
@@ -753,6 +758,7 @@ img { max-width: 100%; }
   transform: translateY(20px) scale(.97);
   transition: transform .35s ease;
   overflow: hidden;
+  margin: auto;
 }
 .modal-overlay.open .modal { transform: translateY(0) scale(1); }
 
@@ -807,6 +813,14 @@ img { max-width: 100%; }
   scroll-behavior: smooth;
   min-height: 400px; /* Ensure minimum scrollable area */
   max-height: calc(90vh - 200px); /* Account for header/footer */
+  /* Hide scrollbars */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
 }
 .form-step { display: none; }
 .form-step.active { display: block; }

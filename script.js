@@ -2,7 +2,11 @@
 // REGISTRATION FORM HANDLER
 // ═══════════════════════════════════════════════════════════════
 
+console.log('LYDO Registration Script Loaded');
+
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM Ready - Initializing registration...');
+  
   const registerModal = document.getElementById('registerModal');
   const privacyModal = document.getElementById('privacyModal');
   const registerForm = document.getElementById('registerForm');
@@ -11,6 +15,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const closePrivacyBtn = document.getElementById('closePrivacyModal');
   const openPrivacyBtn = document.getElementById('openPrivacyModal');
   const acceptPrivacyBtn = document.getElementById('acceptPrivacy');
+  
+  console.log('Modal elements:', {
+    registerModal: !!registerModal,
+    privacyModal: !!privacyModal,
+    registerForm: !!registerForm,
+    openRegisterBtn: !!openRegisterBtn
+  });
   
   let currentStep = 1;
   const totalSteps = 5;
