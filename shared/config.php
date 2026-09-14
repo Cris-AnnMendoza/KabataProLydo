@@ -18,14 +18,14 @@ if ($isProduction) {
         define('DB_PORT', $url['port'] ?? '3306');
         define('DB_USER', $url['user'] ?? 'root');
         define('DB_PASS', $url['pass'] ?? '');
-        define('DB_NAME', ltrim($url['path'] ?? '/local_youth_development_db', '/'));
+        define('DB_NAME', ltrim($url['path'] ?? '/railway', '/'));
     } else {
-        // Fallback to individual environment variables
-        define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-        define('DB_PORT', getenv('DB_PORT') ?: '3306');
-        define('DB_USER', getenv('DB_USER') ?: 'root');
-        define('DB_PASS', getenv('DB_PASS') ?: '');
-        define('DB_NAME', getenv('DB_NAME') ?: 'local_youth_development_db');
+        // Fallback to individual environment variables from Railway
+        define('DB_HOST', getenv('MYSQLHOST') ?: getenv('DB_HOST') ?: 'localhost');
+        define('DB_PORT', getenv('MYSQLPORT') ?: getenv('DB_PORT') ?: '3306');
+        define('DB_USER', getenv('MYSQLUSER') ?: getenv('DB_USER') ?: 'root');
+        define('DB_PASS', getenv('MYSQLPASSWORD') ?: getenv('DB_PASS') ?: '');
+        define('DB_NAME', getenv('MYSQLDATABASE') ?: getenv('DB_NAME') ?: 'railway');
     }
 } else {
     // Development: Use localhost XAMPP MySQL
