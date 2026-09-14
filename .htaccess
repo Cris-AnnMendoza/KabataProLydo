@@ -2,6 +2,10 @@ DirectoryIndex index.php index.html
 
 Options -Indexes
 
+# Fix old hardcoded local paths
+RedirectMatch 301 ^/LYDO/lydo-system/(.*)$ /$1
+RedirectMatch 301 ^/LYDO/(.*)$ /$1
+
 # Enable URL Rewriting for Production
 <IfModule mod_rewrite.c>
     RewriteEngine On
