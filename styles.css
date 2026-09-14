@@ -439,15 +439,14 @@ img { max-width: 100%; }
 }
 
 .animate-on-scroll {
-  opacity: 0; transform: translateY(28px);
+  opacity: 1; transform: translateY(0);
   transition: opacity .6s ease, transform .6s ease;
 }
 .animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
 
 /* Force visibility for key sections that should always show */
-.section { display: block; }
+.section { display: block; opacity: 1; }
 .auth-card { opacity: 1; transform: translateY(0); }
-.auth-card.animate-on-scroll { opacity: 1; transform: translateY(0); }
 
 /* ===== NOTIFICATION ===== */
 .notification-overlay {
