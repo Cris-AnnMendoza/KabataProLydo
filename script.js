@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const privacyModal = document.getElementById('privacyModal');
   const registerForm = document.getElementById('registerForm');
   const openRegisterBtn = document.getElementById('openRegisterModal');
+  const navRegisterBtn = document.getElementById('navRegisterBtn');
+  const mobileRegisterBtn = document.getElementById('mobileRegisterBtn');
+  const heroRegisterBtn = document.getElementById('heroRegisterBtn');
+  const ctaRegisterBtn = document.getElementById('ctaRegisterBtn');
   const closeRegisterBtn = document.getElementById('closeRegisterModal');
   const closePrivacyBtn = document.getElementById('closePrivacyModal');
   const openPrivacyBtn = document.getElementById('openPrivacyModal');
@@ -30,20 +34,27 @@ document.addEventListener('DOMContentLoaded', function() {
   // MODAL CONTROLS
   // ─────────────────────────────────────────
   
-  openRegisterBtn?.addEventListener('click', () => {
+  function openRegisterModal() {
     registerModal.classList.add('open');
     document.body.style.overflow = 'hidden';
-  });
+  }
 
-  closeRegisterBtn?.addEventListener('click', () => {
+  function closeRegisterModall() {
     registerModal.classList.remove('open');
     document.body.style.overflow = '';
-  });
+  }
+  
+  openRegisterBtn?.addEventListener('click', openRegisterModal);
+  navRegisterBtn?.addEventListener('click', openRegisterModal);
+  mobileRegisterBtn?.addEventListener('click', openRegisterModal);
+  heroRegisterBtn?.addEventListener('click', openRegisterModal);
+  ctaRegisterBtn?.addEventListener('click', openRegisterModal);
+
+  closeRegisterBtn?.addEventListener('click', closeRegisterModall);
 
   registerModal?.addEventListener('click', (e) => {
     if (e.target === registerModal) {
-      registerModal.classList.remove('open');
-      document.body.style.overflow = '';
+      closeRegisterModall();
     }
   });
 
