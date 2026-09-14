@@ -29,7 +29,7 @@
       </ul>
       <div class="nav-auth">
         <a href="/login.php" class="btn btn-outline">Login</a>
-        <a href="#register" class="btn btn-primary">Register</a>
+        <button class="btn btn-primary" id="navRegisterBtn">Register</button>
       </div>
       <button class="hamburger" id="hamburger" aria-label="Toggle menu">
         <span></span><span></span><span></span>
@@ -47,7 +47,7 @@
     </ul>
     <div class="mobile-auth">
       <a href="/login.php" class="btn btn-outline">Login</a>
-      <a href="#register" class="btn btn-primary">Register</a>
+      <button class="btn btn-primary" id="mobileRegisterBtn">Register</button>
     </div>
   </div>
 
@@ -73,9 +73,9 @@
         and community engagement.
       </p>
       <div class="hero-cta animate-fade-up delay-3">
-        <a href="#register" class="btn btn-hero-primary">
+        <button class="btn btn-hero-primary" id="heroRegisterBtn">
           <i class="fas fa-user-plus"></i> Register Now
-        </a>
+        </button>
         <a href="/login.php" class="btn btn-hero-outline">
           <i class="fas fa-sign-in-alt"></i> Login
         </a>
@@ -237,9 +237,9 @@
       <h2>Ready to be part of the change?</h2>
       <p>Join thousands of youth in Sta. Cruz, Laguna who are already making a difference.</p>
       <div class="cta-buttons">
-        <a href="#register" class="btn btn-white">
+        <button class="btn btn-white" id="ctaRegisterBtn">
           <i class="fas fa-user-plus"></i> Register Now
-        </a>
+        </button>
         <a href="/login.php" class="btn btn-outline-white">
           <i class="fas fa-sign-in-alt"></i> Login to Your Account
         </a>
@@ -339,7 +339,7 @@
         <div class="footer-links">
           <h4>Account</h4>
           <ul>
-            <li><a href="#register">Register</a></li>
+            <li><a href="#" onclick="document.getElementById('openRegisterModal').click(); return false;">Register</a></li>
             <li><a href="/login.php">Login</a></li>
           </ul>
         </div>
