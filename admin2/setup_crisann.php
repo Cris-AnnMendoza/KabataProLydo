@@ -23,7 +23,10 @@ try {
         VALUES (?, ?, ?, ?, 1, NOW())
     ')->execute([$orgId, 'Cris-Ann Mendoza', 'crisann.mendoza@gmail.com', $pwd]);
     
-    echo "✓ Account created!<br>Email: crisann.mendoza@gmail.com<br>Password: password123";
+    echo "✓ Account created!<br>";
+    echo "Email: crisann.mendoza@gmail.com<br>";
+    echo "Password: password123<br>";
+    echo "Org: Cris-Ann Test Organization";
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
 }
