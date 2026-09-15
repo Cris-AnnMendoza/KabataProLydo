@@ -202,17 +202,28 @@ function generateWellbeingReply(string $input, array $user, PDO $pdo, int $userI
 }
 
 // Groq AI API Call - FIXED
+// Groq AI API Call - FIXED WITH BETTER DEBUGGING
 function callGroqAPI(string $input, string $name, string $userType): ?string {
     // Get API key - Try multiple methods to get environment variable
-    $apiKey = getenv('GROQ_API_KEY') ?: ($_ENV['GROQ_API_KEY'] ?? null);
+    $apiKey = getenv('GROQ_API_KEY');
+    
+    // If not found, try $_ENV (Railway sometimes uses this)
+    if (!$apiKey && isset($_ENV['GROQ_API_KEY'])) {
+        $apiKey = $_ENV['GROQ_API_KEY'];
+    }
     
     // If not found, try AI_API_KEY as fallback
     if (!$apiKey) {
-        $apiKey = getenv('AI_API_KEY') ?: ($_ENV['AI_API_KEY'] ?? null);
+        $apiKey = getenv('AI_API_KEY');
+    }
+    
+    if (!$apiKey && isset($_ENV['AI_API_KEY'])) {
+        $apiKey = $_ENV['AI_API_KEY'];
     }
     
     if (!$apiKey) {
-        error_log('ERROR: GROQ_API_KEY or AI_API_KEY environment variable not found. Available env vars: ' . json_encode(array_keys($_ENV)));
+        error_log('CHATBOT ERROR: No API key found. Checked GROQ_API_KEY and AI_API_KEY');
+        error_log('Available env: ' . json_encode(array_slice($_ENV, 0, 10)));
         return null;
     }
 
@@ -221,7 +232,7 @@ function callGroqAPI(string $input, string $name, string $userType): ?string {
     // Use Groq API with mixtral model
     $model = 'mixtral-8x7b-32768';
     
-    error_log("DEBUG: Calling Groq API with key: " . substr($apiKey, 0, 10) . "... and model: $model");
+    error_log("CHATBOT: Calling Groq API with model: $model");
     
     $data = [
         'model' => $model,
@@ -235,11 +246,10 @@ function callGroqAPI(string $input, string $name, string $userType): ?string {
     ];
 
     $url = 'https://api.groq.com/openai/v1/chat/completions';
-    error_log("DEBUG: API URL: $url");
     
     $ch = curl_init($url);
     if (!$ch) {
-        error_log('ERROR: Failed to initialize curl');
+        error_log('CHATBOT ERROR: Failed to initialize curl');
         return null;
     }
     
@@ -247,11 +257,12 @@ function callGroqAPI(string $input, string $name, string $userType): ?string {
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => json_encode($data),
         CURLOPT_HTTPHEADER => [
-            'Authorization: Bearer ' . $apiKey,
+            "Authorization: Bearer $apiKey",
             'Content-Type: application/json'
         ],
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 30,
+        CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2
     ]);
@@ -261,42 +272,46 @@ function callGroqAPI(string $input, string $name, string $userType): ?string {
     $curlError = curl_error($ch);
     curl_close($ch);
     
-    error_log("DEBUG: HTTP Response Code: $httpCode");
+    error_log("CHATBOT: HTTP $httpCode");
     
     if ($curlError) {
-        error_log("CURL ERROR: $curlError");
+        error_log("CHATBOT CURL ERROR: $curlError");
         return null;
     }
     
     if ($httpCode !== 200) {
-        error_log("API ERROR - HTTP $httpCode: " . substr($response, 0, 500));
-        error_log("API Response Body: " . var_export(json_decode($response, true), true));
+        error_log("CHATBOT API ERROR - HTTP $httpCode: " . substr($response, 0, 500));
+        $decoded = json_decode($response, true);
+        if (isset($decoded['error'])) {
+            error_log("CHATBOT API MESSAGE: " . $decoded['error']['message']);
+        }
         return null;
     }
     
     if (!$response) {
-        error_log("ERROR: Empty response from API");
+        error_log("CHATBOT ERROR: Empty response from API");
         return null;
     }
     
     $decoded = json_decode($response, true);
     if (!$decoded) {
-        error_log("ERROR: Failed to decode JSON response. Raw: " . substr($response, 0, 200));
+        error_log("CHATBOT ERROR: Failed to decode JSON response. Raw: " . substr($response, 0, 200));
         return null;
     }
     
     if (!isset($decoded['choices']) || !isset($decoded['choices'][0]) || !isset($decoded['choices'][0]['message'])) {
-        error_log("ERROR: Missing expected response structure. Full response: " . substr($response, 0, 500));
+        error_log("CHATBOT ERROR: Missing expected response structure");
+        error_log("CHATBOT RESPONSE: " . substr($response, 0, 500));
         return null;
     }
     
     $content = $decoded['choices'][0]['message']['content'] ?? null;
     if ($content) {
-        error_log("SUCCESS: Got response length: " . strlen($content));
+        error_log("CHATBOT SUCCESS: Got response");
         return $content;
     }
     
-    error_log("ERROR: No content in message");
+    error_log("CHATBOT ERROR: No content in message");
     return null;
 }
 
