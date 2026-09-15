@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-$userId = $_SESSION['youth_id'] ?? null;
+$userId = $_SESSION['user_id'] ?? null;
 if (!$userId) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Not authenticated.']);

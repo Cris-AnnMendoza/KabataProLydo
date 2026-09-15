@@ -64,13 +64,12 @@ $pdo->exec("ALTER TABLE wellbeing_chats ADD COLUMN IF NOT EXISTS user_type ENUM(
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_chat'])) {
     header('Content-Type: application/json');
     
-    // Enable error reporting for debugging
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
+    error_reporting(0);
+    ini_set('display_errors', 0);
     
     $msg = trim($_POST['message'] ?? '');
     if (!$msg || mb_strlen($msg) > 1000) {
-        echo json_encode(['reply' => 'Please send a valid message (max 1000 characters).', 'error' => 'Invalid message', 'debug' => 'Message validation failed']);
+        echo json_encode(['reply' => 'Please send a valid message (max 1000 characters).']);
         exit;
     }
 

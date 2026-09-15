@@ -1,6 +1,6 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+error_reporting(0);
+ini_set('display_errors', 0);
 
 echo "<html><head><title>API Key Checker</title></head><body style='font-family:sans-serif;padding:20px;max-width:600px;margin:0 auto'>";
 echo "<h1>🔍 Gemini API Key Checker</h1>";

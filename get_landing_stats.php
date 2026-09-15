@@ -1,7 +1,7 @@
 <?php
 // API endpoint to fetch landing page statistics
 header('Content-Type: application/json');
-require_once 'lydo-system/shared/config.php';
+require_once __DIR__ . '/shared/config.php';
 
 try {
     $pdo = db();

@@ -1,7 +1,7 @@
 <?php
 // Handle contact form submission
 header('Content-Type: application/json');
-require_once 'lydo-system/shared/config.php';
+require_once __DIR__ . '/shared/config.php';
 
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
