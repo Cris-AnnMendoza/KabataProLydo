@@ -592,7 +592,7 @@ if (empty($user['qr_token'])) {
       </button>
     </div>
     <div class="chatbot-iframe-wrapper">
-      <iframe id="chatbotIframe" src="wellbeing_ai.html"></iframe>
+      <div id="chatbotContent"></div>
     </div>
   </div>
 </div>
@@ -622,10 +622,7 @@ function toggleChatbot() {
   isChatbotOpen = !isChatbotOpen;
   if (isChatbotOpen) {
     chatbotModal.classList.add('active');
-    // Reload iframe on first open
-    if (!chatbotIframe.src.includes('wellbeing_ai.html')) {
-      chatbotIframe.src = 'wellbeing_ai.html';
-    }
+    loadChatbot();
   } else {
     chatbotModal.classList.remove('active');
   }
@@ -634,6 +631,93 @@ function toggleChatbot() {
 function closeChatbot() {
   isChatbotOpen = false;
   chatbotModal.classList.remove('active');
+}
+
+function loadChatbot() {
+  const container = document.getElementById('chatbotContent');
+  if (container.innerHTML.trim()) return; // Already loaded
+  
+  container.innerHTML = `
+    <div style="display:flex;flex-direction:column;height:100%;overflow:hidden;font-family:Inter,sans-serif">
+      <div style="padding:16px;background:linear-gradient(135deg,#1565c0,#1e88e5);color:#fff;display:flex;align-items:center;gap:12px">
+        <i class="fas fa-brain" style="font-size:1.2rem"></i>
+        <span style="font-weight:600">LYDO Wellbeing Assistant</span>
+      </div>
+      <div id="chatMessages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;background:#f8fafc">
+        <div style="display:flex;gap:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1565c0,#1e88e5);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.75rem">
+            <i class="fas fa-brain"></i>
+          </div>
+          <div style="max-width:75%;padding:8px 12px;border-radius:10px;background:#fff;color:#1e293b;border:1px solid #e2e8f0;font-size:0.8rem;line-height:1.5">
+            Hi! I'm your LYDO Well-being Assistant. How are you feeling today?
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;padding:12px;background:#fff;border-top:1px solid #e2e8f0">
+        <textarea id="messageInput" placeholder="Type your message..." style="flex:1;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:0.8rem;outline:none;resize:none;max-height:70px" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMessage()}"></textarea>
+        <button id="sendBtn" onclick="sendChatMessage()" style="padding:8px 14px;background:linear-gradient(135deg,#1565c0,#1e88e5);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600;white-space:nowrap">
+          <i class="fas fa-paper-plane"></i> Send
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('messageInput');
+  const message = input.value.trim();
+  if (!message) return;
+  
+  const messages = document.getElementById('chatMessages');
+  
+  // Add user message
+  const userMsg = document.createElement('div');
+  userMsg.style.cssText = 'display:flex;gap:8px;flex-direction:row-reverse';
+  userMsg.innerHTML = `
+    <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#0d3b6e,#1565c0);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.75rem">
+      <i class="fas fa-user"></i>
+    </div>
+    <div style="max-width:75%;padding:8px 12px;border-radius:10px;background:linear-gradient(135deg,#1565c0,#1e88e5);color:#fff;font-size:0.8rem;line-height:1.5">${message}</div>
+  `;
+  messages.appendChild(userMsg);
+  input.value = '';
+  messages.scrollTop = messages.scrollHeight;
+  
+  // Send to server
+  try {
+    const formData = new FormData();
+    formData.append('ajax_chat', '1');
+    formData.append('message', message);
+    
+    const response = await fetch('wellbeing_ai.php', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const data = await response.json();
+    
+    const botMsg = document.createElement('div');
+    botMsg.style.cssText = 'display:flex;gap:8px';
+    botMsg.innerHTML = `
+      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1565c0,#1e88e5);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.75rem;flex-shrink:0">
+        <i class="fas fa-brain"></i>
+      </div>
+      <div style="max-width:75%;padding:8px 12px;border-radius:10px;background:#fff;color:#1e293b;border:1px solid #e2e8f0;font-size:0.8rem;line-height:1.5">${(data.reply || 'I am having trouble connecting. Please try again.').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}</div>
+    `;
+    messages.appendChild(botMsg);
+    messages.scrollTop = messages.scrollHeight;
+  } catch (error) {
+    const errMsg = document.createElement('div');
+    errMsg.style.cssText = 'display:flex;gap:8px';
+    errMsg.innerHTML = `
+      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1565c0,#1e88e5);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.75rem">
+        <i class="fas fa-brain"></i>
+      </div>
+      <div style="max-width:75%;padding:8px 12px;border-radius:10px;background:#fff;color:#1e293b;border:1px solid #e2e8f0;font-size:0.8rem;line-height:1.5">I'm having trouble connecting. Please try again.</div>
+    `;
+    messages.appendChild(errMsg);
+    messages.scrollTop = messages.scrollHeight;
+  }
 }
 
 chatbotBubble.addEventListener('click', toggleChatbot);

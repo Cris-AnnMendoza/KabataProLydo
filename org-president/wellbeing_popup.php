@@ -145,9 +145,31 @@ async function sendMessage() {
       body: formData
     });
     
+    console.log('Response status:', response.status);
+    
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      const text = await response.text();
+      console.error('Response error:', text);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    console.log('Response data:', data);
+    hideTyping();
+    
+    if (data.reply) {
+      addMessage(data.reply, false);
+    } else {
+      addMessage("I'm having trouble connecting. Please try again.", false);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    hideTyping();
+    addMessage("I'm having trouble connecting. Please try again.", false);
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
     
     const data = await response.json();
     hideTyping();

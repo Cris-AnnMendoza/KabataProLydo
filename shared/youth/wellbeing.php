@@ -12,6 +12,7 @@ if (!$isYouth && !$isPresident) {
 }
 
 $pdo = db();
+$isPopup = isset($_GET['popup']) && $_GET['popup'] === '1';
 
 // Get user info based on login type
 if ($isPresident) {
@@ -407,7 +408,33 @@ function matchAny(string $text, array $keywords): bool {
 <title>Well-being Assistant – LYDO Youth Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<?php if ($isPopup): ?>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Inter, sans-serif; background: #f8fafc; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+#chat-wrap { display: flex; flex-direction: column; height: 100vh; }
+.chat-header { background: linear-gradient(135deg, #0d3b6e, #1565c0); color: #fff; padding: 16px; display: flex; align-items: center; gap: 12px; }
+.chat-header i { font-size: 1.1rem; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 16px; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; }
+.message { display: flex; gap: 8px; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.message.user { flex-direction: row-reverse; }
+.message-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.75rem; font-weight: 700; }
+.message.ai .message-avatar { background: linear-gradient(135deg, #1565c0, #1e88e5); color: #fff; }
+.message.user .message-avatar { background: linear-gradient(135deg, #0d3b6e, #1565c0); color: #fff; }
+.message-content { max-width: 75%; padding: 8px 12px; border-radius: 10px; font-size: 0.8rem; line-height: 1.5; word-wrap: break-word; }
+.message.ai .message-content { background: #fff; color: #1e293b; border: 1px solid #e2e8f0; }
+.message.user .message-content { background: linear-gradient(135deg, #1565c0, #1e88e5); color: #fff; }
+.chat-input { display: flex; gap: 6px; padding: 12px; background: #fff; border-top: 1px solid #e2e8f0; }
+textarea { flex: 1; padding: 8px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 0.8rem; outline: none; resize: none; max-height: 70px; }
+textarea:focus { border-color: #1565c0; }
+button { padding: 8px 14px; background: linear-gradient(135deg, #1565c0, #1e88e5); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+button:hover { transform: translateY(-1px); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+</style>
+<?php else: ?>
 <link rel="stylesheet" href="youth.css"/>
+<?php endif; ?>
 <style>
 /* ── MAIN LAYOUT FIXES ── */
 .main-content {
