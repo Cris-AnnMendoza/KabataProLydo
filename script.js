@@ -1,8 +1,10 @@
 // ═══════════════════════════════════════════════════════════════
 // REGISTRATION FORM HANDLER
+// Version: 1.0.0 (Last updated: 2026-09-16)
 // ═══════════════════════════════════════════════════════════════
 
-console.log('LYDO Registration Script Loaded');
+console.log('LYDO Registration Script Loaded - Version 1.0.0');
+console.log('Cache-bust: ' + new Date().toISOString());
 
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM Ready - Initializing registration...');
