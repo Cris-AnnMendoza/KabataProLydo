@@ -203,21 +203,18 @@ function generateWellbeingReply(string $input, array $user, PDO $pdo, int $userI
 
 // Groq AI API Call
 function callGroqAPI(string $input, string $name, string $userType): ?string {
-    // Hardcode API key for testing - CHANGE THIS LATER TO USE .ENV
-    $apiKey = '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';
-    
-    error_log("callGroqAPI called with input: " . substr($input, 0, 50));
-    error_log("API Key: " . substr($apiKey, 0, 15) . '...');
+    // Get API key from environment variable only (never hardcode secrets)
+    $apiKey = getenv('GROQ_API_KEY');
     
     if (!$apiKey) {
-        error_log('GROQ API KEY not found');
+        error_log('GROQ_API_KEY environment variable not configured');
         return null;
     }
 
     $systemPrompt = createWellbeingSystemPrompt($name, $userType);
     
-    // Use the correct working model
-    $model = 'openai/gpt-oss-20b';
+    // Use more reliable model
+    $model = 'mixtral-8x7b-32768';
     
     error_log("Calling Groq API with model: $model");
     
