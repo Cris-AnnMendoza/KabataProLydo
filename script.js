@@ -134,6 +134,42 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // ─────────────────────────────────────────
+  // FORM VALIDATION - STEP 4 ORGANIZATION
+  // ─────────────────────────────────────────
+  
+  // Validate organization selection before moving to next step
+  function validateOrganizationStep() {
+    const orgSelect = document.getElementById('r_org_name');
+    const newOrgName = document.getElementById('r_new_org_name').value.trim();
+    
+    // Must have either selected an org OR entered a new org name
+    if (!orgSelect.value && !newOrgName) {
+      showNotification('Error', 'Please select an organization or create a new one.');
+      return false;
+    }
+    
+    // If creating new org, category is required
+    if (newOrgName && !document.getElementById('r_new_org_category').value) {
+      showNotification('Error', 'Please select a category for the new organization.');
+      return false;
+    }
+    
+    return true;
+  }
+
+  // Add organization validation to next button
+  const originalNextClick = nextBtn.onclick;
+  nextBtn?.addEventListener('click', function(e) {
+    // Step 4 has special validation for organization
+    if (currentStep === 3) { // Step 3 is org info step (0-indexed would be different, but form shows step 4)
+      if (!validateOrganizationStep()) {
+        e.preventDefault();
+        return;
+      }
+    }
+  });
+
+  // ─────────────────────────────────────────
   // FORM VALIDATION
   // ─────────────────────────────────────────
 
@@ -245,8 +281,20 @@ document.addEventListener('DOMContentLoaded', function() {
     formData.append('employment_status', document.getElementById('r_employment').value);
     
     // Organization
-    const orgName = document.getElementById('r_org_name').value;
-    formData.append('organization_name', orgName === 'None' ? '' : orgName);
+    const orgSelect = document.getElementById('r_org_name').value;
+    const newOrgName = document.getElementById('r_new_org_name').value.trim();
+    const newOrgCategory = document.getElementById('r_new_org_category').value;
+    
+    // Send organization info based on what was selected/created
+    if (orgSelect) {
+      // User selected existing organization
+      formData.append('organization_id', orgSelect);
+    } else if (newOrgName) {
+      // User creating new organization
+      formData.append('new_organization_name', newOrgName);
+      formData.append('new_organization_category', newOrgCategory);
+    }
+    
     formData.append('organization_role', document.getElementById('r_org_position').value || '');
     formData.append('years_membership', document.getElementById('r_org_years').value || '0');
     

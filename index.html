@@ -692,24 +692,65 @@
                 <option>Student</option><option>Freelancer</option>
               </select>
             </div>
-            <div class="step-title mt-24"><i class="fas fa-users"></i> Organization Information</div>
+            <div class="step-title mt-24"><i class="fas fa-users"></i> Organization Information <span class="req">*</span></div>
+            
+            <!-- ORGANIZATION SELECTION SECTION -->
             <div class="form-row">
               <div class="form-group">
                 <label for="r_org_name">Select Your Organization</label>
                 <select id="r_org_name">
-                  <option value="">-- Select organization or choose "None" --</option>
-                  <option value="None">I'm not part of any organization</option>
+                  <option value="">-- Search and select accredited organization --</option>
                   <!-- Organizations will be loaded here dynamically -->
                 </select>
                 <small style="color: #94a3b8; font-size: 0.85rem; display: block; margin-top: 4px;">
-                  <i class="fas fa-info-circle"></i> Choose from the list of registered youth organizations
+                  <i class="fas fa-info-circle"></i> Choose from registered youth organizations
                 </small>
               </div>
-              <div class="form-group" id="org_category_display" style="display: none;">
-                <label>Organization Category</label>
-                <input type="text" id="r_org_category" readonly style="background: #f8fafc; cursor: not-allowed;" />
+            </div>
+
+            <!-- DIVIDER -->
+            <div style="text-align: center; margin: 20px 0; color: #cbd5e0;">
+              <span style="display: inline-block; padding: 0 10px; background: white;">OR</span>
+            </div>
+
+            <!-- CREATE NEW ORGANIZATION SECTION -->
+            <div style="border: 2px dashed #cbd5e0; border-radius: 8px; padding: 20px; background: #f8fafc; margin-bottom: 20px;">
+              <h4 style="margin: 0 0 15px 0; color: #2d3748; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-plus-circle" style="color: #007bff;"></i> Create New Organization
+              </h4>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="r_new_org_name">Organization Name</label>
+                  <input type="text" id="r_new_org_name" placeholder="e.g. SK Barangay 1 Youth Council" />
+                  <small style="color: #94a3b8; font-size: 0.85rem; display: block; margin-top: 4px;">
+                    If your organization is not listed above
+                  </small>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="r_new_org_category">Organization Category</label>
+                  <select id="r_new_org_category">
+                    <option value="">Select category...</option>
+                    <option>Sangguniang Kabataan</option>
+                    <option>Youth NGO</option>
+                    <option>Religious Organization</option>
+                    <option>Sports Club</option>
+                    <option>Academic Organization</option>
+                    <option>Community Group</option>
+                    <option>Cultural Group</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="background: #e7f3ff; border-left: 4px solid #007bff; padding: 12px; border-radius: 4px; margin-top: 15px; font-size: 13px; color: #004085;">
+                <i class="fas fa-lightbulb"></i> <strong>Next Steps:</strong> After registration, you'll be guided to submit your organization's required documents (Constitution, Officers List, Financial Report) to the LYDO Office for accreditation review.
               </div>
             </div>
+
             <div class="form-row">
               <div class="form-group">
                 <label for="r_org_position">Position / Role</label>
