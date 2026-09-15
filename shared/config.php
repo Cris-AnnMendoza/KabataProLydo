@@ -1,4 +1,8 @@
 <?php
+// ── Timezone Configuration ────────────────────────────────
+// Set timezone to Philippines (UTC+8) for accurate time comparisons
+date_default_timezone_set('Asia/Manila');
+
 // ── Session Configuration ────────────────────────────────
 // Configure sessions before starting
 ini_set('session.gc_maxlifetime', 86400); // 24 hours
