@@ -92,6 +92,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['user_id']    = $user['id'];
                         $_SESSION['user_name']  = $user['first_name'] . ' ' . $user['last_name'];
                         $_SESSION['user_email'] = $user['email'];
+                        $_SESSION['login_time'] = time();
+                        
+                        // Optional: Extend session if "Remember me" is checked
+                        if (!empty($_POST['remember_me'])) {
+                            setcookie('user_remember', $user['id'], time() + (30 * 24 * 60 * 60), '/', '', false, true);
+                        }
+                        
                         header('Location: shared/youth/dashboard.php');
                         exit;
                     }

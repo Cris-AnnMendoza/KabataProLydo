@@ -1,4 +1,12 @@
 <?php
+// ── Session Configuration ────────────────────────────────
+// Configure sessions before starting
+ini_set('session.gc_maxlifetime', 86400); // 24 hours
+ini_set('session.cookie_lifetime', 0); // Until browser closes (but use remember_me for persistent)
+ini_set('session.cookie_httponly', 1); // No JS access to cookies
+ini_set('session.cookie_samesite', 'Lax'); // Allow cross-site session (needed for QR links)
+ini_set('session.cookie_secure', 0); // HTTP is fine for localhost, Railway will upgrade to HTTPS
+
 if (session_status() === PHP_SESSION_NONE) session_start();
 
 // ══════════════════════════════════════════════════════════════
