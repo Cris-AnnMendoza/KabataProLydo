@@ -4,11 +4,6 @@
  * Update these settings with your Gmail credentials
  */
 
-// Import PHPMailer classes at the top
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-
 // Gmail SMTP Settings
 define('SMTP_HOST', 'smtp.gmail.com');
 define('SMTP_PORT', 587);
@@ -29,7 +24,7 @@ function sendEmail($to, $toName, $subject, $htmlBody) {
     
     require_once __DIR__ . '/../../vendor/autoload.php';
     
-    $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
     
     try {
         // Server settings
@@ -38,7 +33,7 @@ function sendEmail($to, $toName, $subject, $htmlBody) {
         $mail->SMTPAuth   = true;
         $mail->Username   = SMTP_USERNAME;
         $mail->Password   = SMTP_PASSWORD;
-        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = SMTP_PORT;
         
         // Recipients
@@ -56,7 +51,7 @@ function sendEmail($to, $toName, $subject, $htmlBody) {
         $mail->send();
         return true;
         
-    } catch (PHPMailer\PHPMailer\Exception $e) {
+    } catch (\PHPMailer\PHPMailer\Exception $e) {
         error_log("Email send failed: {$mail->ErrorInfo}");
         return false;
     }
