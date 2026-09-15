@@ -274,20 +274,20 @@ try{$upS=$pdo->query('SELECT e.*,o.name as org_name FROM events e LEFT JOIN orga
         <!-- Photo Upload Section -->
         <div style="width:100%;max-width:380px;margin-top:10px">
           <label style="display:block;font-size:.9rem;font-weight:600;color:var(--gray-700);margin-bottom:8px">
-            <i class="fas fa-camera"></i> Upload Attendance Photo (Optional)
+            <i class="fas fa-camera"></i> Take Attendance Photo (Required)
           </label>
           <div id="checkinPhotoBox" style="border:2px dashed #cbd5e1;border-radius:12px;padding:20px;text-align:center;background:#f8fafc;cursor:pointer;transition:.2s" onclick="document.getElementById('checkinPhotoInput').click()">
             <div id="checkinPhotoPlaceholder">
               <i class="fas fa-camera" style="font-size:2rem;color:#94a3b8;margin-bottom:8px"></i>
-              <div style="font-size:.85rem;color:#64748b;font-weight:500">Click to upload or take a photo</div>
-              <div style="font-size:.75rem;color:#94a3b8;margin-top:4px">JPG, PNG or WEBP (Max 5MB)</div>
+              <div style="font-size:.85rem;color:#64748b;font-weight:500">Click to take a photo</div>
+              <div style="font-size:.75rem;color:#94a3b8;margin-top:4px">Camera photo for proof of attendance</div>
             </div>
             <div id="checkinPhotoPreview" style="display:none">
               <img id="checkinPhotoImg" style="max-width:100%;max-height:200px;border-radius:8px;margin-bottom:8px" />
               <div style="font-size:.8rem;color:#2e7d32;font-weight:600"><i class="fas fa-check-circle"></i> Photo ready to upload</div>
             </div>
           </div>
-          <input type="file" id="checkinPhotoInput" accept="image/jpeg,image/jpg,image/png,image/webp" onchange="previewCheckinPhoto(event)" style="display:none" />
+          <input type="file" id="checkinPhotoInput" accept="image/jpeg,image/jpg,image/png,image/webp" capture="environment" onchange="previewCheckinPhoto(event)" style="display:none" />
           <div style="font-size:.75rem;color:#64748b;margin-top:6px;text-align:center">
             <i class="fas fa-info-circle"></i> Taking a photo serves as additional proof of your attendance
           </div>
@@ -336,7 +336,7 @@ try{$upS=$pdo->query('SELECT e.*,o.name as org_name FROM events e LEFT JOIN orga
               <div style="font-size:.8rem;color:#2e7d32;font-weight:600"><i class="fas fa-check-circle"></i> Photo ready to upload</div>
             </div>
           </div>
-          <input type="file" id="checkoutPhotoInput" accept="image/jpeg,image/jpg,image/png,image/webp" onchange="previewCheckoutPhoto(event)" style="display:none" />
+          <input type="file" id="checkoutPhotoInput" accept="image/jpeg,image/jpg,image/png,image/webp" capture="environment" onchange="previewCheckoutPhoto(event)" style="display:none" />
           <div style="font-size:.75rem;color:#64748b;margin-top:6px;text-align:center">
             <i class="fas fa-info-circle"></i> Taking a photo serves as additional proof of your attendance
           </div>
