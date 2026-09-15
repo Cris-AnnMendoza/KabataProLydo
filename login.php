@@ -84,8 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ];
                 $pdo->prepare('UPDATE organization_presidents SET last_login = NOW() WHERE id = ?')
                     ->execute([$president['id']]);
-                $pdo->prepare('INSERT INTO organization_president_activity_log (president_id, action, ip_address) VALUES (?, ?, ?)')
-                    ->execute([$president['id'], 'Login', $_SERVER['REMOTE_ADDR'] ?? null]);
                 
                 // Create remember me token if checkbox is checked
                 if (!empty($_POST['remember_me'])) {
