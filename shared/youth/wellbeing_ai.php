@@ -55,9 +55,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_chat'])) {
 
 // AI Response Function using Together API
 function callGroqAI(string $input, string $name): string {
-    $apiKey = getenv('AI_API_KEY');
+    $apiKey = getenv('AI_API_KEY') ?: getenv('TOGETHER_API_KEY');
+    
     if (!$apiKey) {
-        error_log('AI_API_KEY environment variable not set');
+        error_log('AI_API_KEY or TOGETHER_API_KEY environment variable not set');
         return "I'm currently unavailable. Please try again later.";
     }
     

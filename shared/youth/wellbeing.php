@@ -204,10 +204,10 @@ function generateWellbeingReply(string $input, array $user, PDO $pdo, int $userI
 // Together AI API Call
 function callGroqAPI(string $input, string $name, string $userType): ?string {
     // Get API key from environment variable
-    $apiKey = getenv('AI_API_KEY');
+    $apiKey = getenv('AI_API_KEY') ?: getenv('TOGETHER_API_KEY');
     
     if (!$apiKey) {
-        error_log('AI_API_KEY environment variable not configured');
+        error_log('AI_API_KEY or TOGETHER_API_KEY environment variable not configured');
         return null;
     }
 
