@@ -135,6 +135,9 @@ body{font-family:'Inter',sans-serif;background:#e8ecf0;display:flex;flex-directi
   .cert-name{font-size:1.4rem;min-width:unset}
   .cert-footer{grid-template-columns:1fr}
   .cert-header{flex-direction:column;gap:10px}
+  .verify-box{gap:8px}
+  .verify-box #certQR canvas,
+  .verify-box #certQR img{width:130px!important;height:130px!important}
 }
 @media print{
   html,body{width:279mm;height:216mm;margin:0;padding:0}
@@ -248,8 +251,8 @@ body{font-family:'Inter',sans-serif;background:#e8ecf0;display:flex;flex-directi
 // Generate verification QR code
 new QRCode(document.getElementById('certQR'), {
   text: <?= json_encode($verifyUrl) ?>,
-  width: 110,
-  height: 110,
+  width: 140,
+  height: 140,
   colorDark: '#0d3b6e',
   colorLight: '#ffffff',
   correctLevel: QRCode.CorrectLevel.H
