@@ -109,11 +109,14 @@ if (!$event['checkin_open']) {
     $closed = true;
 } elseif ($startTime) {
     // Event has a start time - enforce 15-minute window
-    $startTs         = strtotime(date('Y-m-d') . ' ' . $startTime);
-    $checkinDeadline = date('H:i:s', $startTs + 900); // +15 minutes
+    // Convert times to timestamps for proper comparison
+    $todayDate   = date('Y-m-d');
+    $startTs     = strtotime($todayDate . ' ' . $startTime);
+    $nowTs       = strtotime($todayDate . ' ' . $now);
+    $checkinDeadlineTs = $startTs + 900; // +15 minutes
     
     // Check-in only available from start_time to start_time + 15 minutes
-    if ($now < $startTime || $now >= $checkinDeadline) {
+    if ($nowTs < $startTs || $nowTs >= $checkinDeadlineTs) {
         $closed = true;
     }
 }
