@@ -53,15 +53,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_chat'])) {
     exit;
 }
 
-// AI Response Function using Groq API
+// AI Response Function using Together API
 function callGroqAI(string $input, string $name): string {
-    $apiKey = getenv('GROQ_API_KEY');
+    $apiKey = getenv('AI_API_KEY');
     if (!$apiKey) {
-        error_log('GROQ_API_KEY environment variable not set');
+        error_log('AI_API_KEY environment variable not set');
         return "I'm currently unavailable. Please try again later.";
     }
     
-    $model = 'mixtral-8x7b-32768';
+    $model = 'openai/gpt-4-turbo';
     
     $systemPrompt = "You are LYDO's Well-being Assistant, a caring and professional mental health support chatbot for Filipino youth and community leaders.
 
@@ -99,7 +99,7 @@ function callGroqAI(string $input, string $name): string {
         'top_p' => 0.9
     ];
 
-    $ch = curl_init('https://api.groq.com/openai/v1/chat/completions');
+    $ch = curl_init('https://api.together.xyz/v1/chat/completions');
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => json_encode($data),

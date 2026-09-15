@@ -201,22 +201,22 @@ function generateWellbeingReply(string $input, array $user, PDO $pdo, int $userI
     return callGroqAPI($input, $name, $userType) ?? getFallbackResponse($input, $name);
 }
 
-// Groq AI API Call
+// Together AI API Call
 function callGroqAPI(string $input, string $name, string $userType): ?string {
-    // Get API key from environment variable only (never hardcode secrets)
-    $apiKey = getenv('GROQ_API_KEY');
+    // Get API key from environment variable
+    $apiKey = getenv('AI_API_KEY');
     
     if (!$apiKey) {
-        error_log('GROQ_API_KEY environment variable not configured');
+        error_log('AI_API_KEY environment variable not configured');
         return null;
     }
 
     $systemPrompt = createWellbeingSystemPrompt($name, $userType);
     
-    // Use more reliable model
-    $model = 'mixtral-8x7b-32768';
+    // Use Together AI model
+    $model = 'openai/gpt-4-turbo';
     
-    error_log("Calling Groq API with model: $model");
+    error_log("Calling Together API with model: $model");
     
     $data = [
         'model' => $model,
@@ -229,7 +229,7 @@ function callGroqAPI(string $input, string $name, string $userType): ?string {
         'top_p' => 0.9
     ];
 
-    $ch = curl_init('https://api.groq.com/openai/v1/chat/completions');
+    $ch = curl_init('https://api.together.xyz/v1/chat/completions');
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => json_encode($data),
