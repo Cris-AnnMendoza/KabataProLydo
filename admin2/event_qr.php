@@ -268,8 +268,8 @@ $eventDate = date('F j, Y', strtotime($event['event_date']));
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <link rel="stylesheet" href="admin.css"/>
-<!-- QR code library (pure JS, no server dependency) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- QR code library (self-hosted, no external dependency) -->
+<script src="qrcode.min.js"></script>
 <style>
 .qr-section{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start}
 .qr-box{background:#fff;border:2px solid #e2e8f0;border-radius:16px;padding:24px;text-align:center;min-width:260px}
