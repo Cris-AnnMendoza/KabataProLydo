@@ -203,16 +203,16 @@ function generateWellbeingReply(string $input, array $user, PDO $pdo, int $userI
 
 // Groq AI API Call - FIXED
 function callGroqAPI(string $input, string $name, string $userType): ?string {
-    // Get API key - Groq uses GROQ_API_KEY environment variable
-    $apiKey = getenv('GROQ_API_KEY');
+    // Get API key - Try multiple methods to get environment variable
+    $apiKey = getenv('GROQ_API_KEY') ?: ($_ENV['GROQ_API_KEY'] ?? null);
     
     // If not found, try AI_API_KEY as fallback
     if (!$apiKey) {
-        $apiKey = getenv('AI_API_KEY');
+        $apiKey = getenv('AI_API_KEY') ?: ($_ENV['AI_API_KEY'] ?? null);
     }
     
     if (!$apiKey) {
-        error_log('ERROR: GROQ_API_KEY or AI_API_KEY environment variable not found');
+        error_log('ERROR: GROQ_API_KEY or AI_API_KEY environment variable not found. Available env vars: ' . json_encode(array_keys($_ENV)));
         return null;
     }
 
@@ -270,6 +270,7 @@ function callGroqAPI(string $input, string $name, string $userType): ?string {
     
     if ($httpCode !== 200) {
         error_log("API ERROR - HTTP $httpCode: " . substr($response, 0, 500));
+        error_log("API Response Body: " . var_export(json_decode($response, true), true));
         return null;
     }
     
@@ -280,7 +281,7 @@ function callGroqAPI(string $input, string $name, string $userType): ?string {
     
     $decoded = json_decode($response, true);
     if (!$decoded) {
-        error_log("ERROR: Failed to decode JSON response");
+        error_log("ERROR: Failed to decode JSON response. Raw: " . substr($response, 0, 200));
         return null;
     }
     
