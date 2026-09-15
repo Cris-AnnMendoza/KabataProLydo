@@ -53,16 +53,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_chat'])) {
     exit;
 }
 
-// AI Response Function using Groq API
+// AI Response Function using Groq API - FIXED
 function callGroqAI(string $input, string $name): string {
-    $apiKey = getenv('AI_API_KEY') ?: getenv('TOGETHER_API_KEY');
+    // Get API key - Groq uses GROQ_API_KEY environment variable
+    $apiKey = getenv('GROQ_API_KEY');
+    
+    // If not found, try AI_API_KEY as fallback
+    if (!$apiKey) {
+        $apiKey = getenv('AI_API_KEY');
+    }
     
     if (!$apiKey) {
-        error_log('AI_API_KEY or TOGETHER_API_KEY environment variable not set');
+        error_log('ERROR: GROQ_API_KEY or AI_API_KEY environment variable not found');
         return "I'm currently unavailable. Please try again later.";
     }
     
-    // Use Groq API with reliable model
+    // Use Groq API with mixtral model
     $model = 'mixtral-8x7b-32768';
     
     $systemPrompt = "You are LYDO's Well-being Assistant, a caring and professional mental health support chatbot for Filipino youth and community leaders.
@@ -101,7 +107,14 @@ function callGroqAI(string $input, string $name): string {
         'top_p' => 0.9
     ];
 
-    $ch = curl_init('https://api.groq.com/openai/v1/chat/completions');
+    $url = 'https://api.groq.com/openai/v1/chat/completions';
+    $ch = curl_init($url);
+    
+    if (!$ch) {
+        error_log('ERROR: Failed to initialize curl');
+        return "I'm currently unavailable. Please try again later.";
+    }
+    
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => json_encode($data),
@@ -111,21 +124,30 @@ function callGroqAI(string $input, string $name): string {
         ],
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 30,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => 0
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2
     ]);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
     
-    if ($httpCode === 200 && $response) {
-        $decoded = json_decode($response, true);
-        if (isset($decoded['choices'][0]['message']['content'])) {
-            return $decoded['choices'][0]['message']['content'];
-        }
+    if ($curlError) {
+        error_log("CURL ERROR: $curlError");
+        return "I'm currently unavailable. Please try again later.";
     }
     
-    // Fallback response if AI fails
-    return "I hear you, **{$name}**. 💙 I'd love to help you with that. Could you tell me more about what you're experiencing? I'm here to listen and support you.";
+    if ($httpCode !== 200 || !$response) {
+        error_log("API ERROR - HTTP $httpCode: " . substr($response, 0, 300));
+        return "I'm currently unavailable. Please try again later.";
+    }
+    
+    $decoded = json_decode($response, true);
+    if (isset($decoded['choices'][0]['message']['content'])) {
+        return $decoded['choices'][0]['message']['content'];
+    }
+    
+    error_log("ERROR: Missing expected response structure");
+    return "I'm currently unavailable. Please try again later.";
 }

@@ -201,22 +201,27 @@ function generateWellbeingReply(string $input, array $user, PDO $pdo, int $userI
     return callGroqAPI($input, $name, $userType) ?? getFallbackResponse($input, $name);
 }
 
-// Together AI API Call with fallback to Groq
+// Groq AI API Call - FIXED
 function callGroqAPI(string $input, string $name, string $userType): ?string {
-    // Get API key from environment variable
-    $apiKey = getenv('AI_API_KEY') ?: getenv('TOGETHER_API_KEY');
+    // Get API key - Groq uses GROQ_API_KEY environment variable
+    $apiKey = getenv('GROQ_API_KEY');
+    
+    // If not found, try AI_API_KEY as fallback
+    if (!$apiKey) {
+        $apiKey = getenv('AI_API_KEY');
+    }
     
     if (!$apiKey) {
-        error_log('AI_API_KEY or TOGETHER_API_KEY environment variable not configured');
+        error_log('ERROR: GROQ_API_KEY or AI_API_KEY environment variable not found');
         return null;
     }
 
     $systemPrompt = createWellbeingSystemPrompt($name, $userType);
     
-    // Try Groq API first (more reliable)
+    // Use Groq API with mixtral model
     $model = 'mixtral-8x7b-32768';
     
-    error_log("Calling Groq API with model: $model");
+    error_log("DEBUG: Calling Groq API with key: " . substr($apiKey, 0, 10) . "... and model: $model");
     
     $data = [
         'model' => $model,
@@ -229,7 +234,15 @@ function callGroqAPI(string $input, string $name, string $userType): ?string {
         'top_p' => 0.9
     ];
 
-    $ch = curl_init('https://api.groq.com/openai/v1/chat/completions');
+    $url = 'https://api.groq.com/openai/v1/chat/completions';
+    error_log("DEBUG: API URL: $url");
+    
+    $ch = curl_init($url);
+    if (!$ch) {
+        error_log('ERROR: Failed to initialize curl');
+        return null;
+    }
+    
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => json_encode($data),
@@ -239,8 +252,8 @@ function callGroqAPI(string $input, string $name, string $userType): ?string {
         ],
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 30,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => 0
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2
     ]);
 
     $response = curl_exec($ch);
@@ -248,25 +261,41 @@ function callGroqAPI(string $input, string $name, string $userType): ?string {
     $curlError = curl_error($ch);
     curl_close($ch);
     
+    error_log("DEBUG: HTTP Response Code: $httpCode");
+    
     if ($curlError) {
-        error_log("CURL Error: $curlError");
+        error_log("CURL ERROR: $curlError");
         return null;
     }
     
-    error_log("HTTP Code: $httpCode");
-    
-    if ($httpCode === 200 && $response) {
-        $decoded = json_decode($response, true);
-        if (isset($decoded['choices'][0]['message']['content'])) {
-            $content = $decoded['choices'][0]['message']['content'];
-            error_log("Success! Response length: " . strlen($content));
-            return $content;
-        }
-        error_log("Response missing content: " . substr($response, 0, 300));
-    } else {
-        error_log("API Error - HTTP $httpCode: " . substr($response, 0, 300));
+    if ($httpCode !== 200) {
+        error_log("API ERROR - HTTP $httpCode: " . substr($response, 0, 500));
+        return null;
     }
     
+    if (!$response) {
+        error_log("ERROR: Empty response from API");
+        return null;
+    }
+    
+    $decoded = json_decode($response, true);
+    if (!$decoded) {
+        error_log("ERROR: Failed to decode JSON response");
+        return null;
+    }
+    
+    if (!isset($decoded['choices']) || !isset($decoded['choices'][0]) || !isset($decoded['choices'][0]['message'])) {
+        error_log("ERROR: Missing expected response structure. Full response: " . substr($response, 0, 500));
+        return null;
+    }
+    
+    $content = $decoded['choices'][0]['message']['content'] ?? null;
+    if ($content) {
+        error_log("SUCCESS: Got response length: " . strlen($content));
+        return $content;
+    }
+    
+    error_log("ERROR: No content in message");
     return null;
 }
 
