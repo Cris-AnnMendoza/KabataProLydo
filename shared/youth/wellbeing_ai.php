@@ -56,15 +56,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_chat'])) {
 // AI Response Function using Groq API - FIXED
 function callGroqAI(string $input, string $name): string {
     // Get API key - Try multiple methods to get environment variable
-    $apiKey = getenv('GROQ_API_KEY') ?: ($_ENV['GROQ_API_KEY'] ?? null);
+    $apiKey = getenv('GROQ_API_KEY');
+    
+    // Try $_ENV if getenv didn't work
+    if (!$apiKey && isset($_ENV['GROQ_API_KEY'])) {
+        $apiKey = $_ENV['GROQ_API_KEY'];
+    }
+    
+    // Try $_SERVER as last resort
+    if (!$apiKey && isset($_SERVER['GROQ_API_KEY'])) {
+        $apiKey = $_SERVER['GROQ_API_KEY'];
+    }
     
     // If not found, try AI_API_KEY as fallback
     if (!$apiKey) {
-        $apiKey = getenv('AI_API_KEY') ?: ($_ENV['AI_API_KEY'] ?? null);
+        $apiKey = getenv('AI_API_KEY');
+    }
+    
+    if (!$apiKey && isset($_ENV['AI_API_KEY'])) {
+        $apiKey = $_ENV['AI_API_KEY'];
     }
     
     if (!$apiKey) {
-        error_log('ERROR: GROQ_API_KEY or AI_API_KEY environment variable not found. Available env vars: ' . json_encode(array_keys($_ENV)));
+        error_log('ERROR: GROQ_API_KEY or AI_API_KEY environment variable not found');
         return "I'm currently unavailable. Please try again later.";
     }
     
