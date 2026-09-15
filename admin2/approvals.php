@@ -1,6 +1,5 @@
 <?php
 require_once 'config.php';
-require_once __DIR__ . '/../shared/email_config.php';
 requireLogin();
 if (!hasPermission('view_users')) { header('Location: dashboard.php'); exit; }
 
@@ -107,8 +106,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['id'
                 </html>
                 ";
                 
-                // Send email using PHPMailer
-                $emailSent = sendEmail($to, $name, $subject, $message);
+                // Send email notification
+                $emailSent = sendMail($to, $name, $subject, $message);
                 
                 if ($emailSent) {
                     flash('success', 'Youth registration approved. ✅ Email notification sent successfully.');
@@ -218,7 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['id'
                 </html>
                 ";
                 
-                $emailSent = sendEmail($to, $name, $subject, $message);
+                $emailSent = sendMail($to, $name, $subject, $message);
                 
                 if ($emailSent) {
                     flash('success', 'Organization president account approved. ✅ Email notification sent successfully.');
