@@ -384,7 +384,7 @@ $eventDate = date('F j, Y', strtotime($event['event_date']));
       <?= $event['checkin_open'] ? 'Check-in Open' : 'Check-in Closed' ?>
     </div>
     <div id="qrcode">
-      <img id="qrcodeImg" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=<?= urlencode($rotatingQRUrl) ?>" alt="QR Code" style="border-radius:8px;width:200px;height:200px;image-rendering:pixelated">
+      <img id="qrcodeImg" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=test" alt="QR Code" style="border-radius:8px;width:200px;height:200px;image-rendering:pixelated">
     </div>
     <div style="font-size:.82rem;font-weight:600;color:#0d3b6e;margin-bottom:6px">Scan to Check In</div>
 
