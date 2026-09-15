@@ -87,7 +87,7 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
 .btn-p{padding:10px 22px;background:#fff;color:#0d3b6e;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;transition:.2s;text-decoration:none}
 .btn-p:hover{background:#e8ecf0}
 .btn-back{padding:10px 22px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:7px}
-.cert-wrap{width:1100px;height:850px;max-width:100%;background:#faf6f0;position:relative;overflow:hidden;box-shadow:0 12px 60px rgba(13,59,110,.2)}
+.cert-wrap{width:1100px;height:auto;min-height:850px;max-width:100%;background:#faf6f0;position:relative;overflow:hidden;box-shadow:0 12px 60px rgba(13,59,110,.2);aspect-ratio:11/8.5}
 .cert-border{position:absolute;inset:26px;border:4px double #0d3b6e;pointer-events:none;z-index:2}
 .cert-border::before{content:'';position:absolute;inset:8px;border:1px solid #c8a84b;pointer-events:none}
 .cert-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 10% 10%,rgba(13,59,110,.02) 0%,transparent 40%),radial-gradient(ellipse at 90% 90%,rgba(200,168,75,.02) 0%,transparent 40%)}
@@ -117,10 +117,10 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
 .cert-info-val{font-size:.85rem;font-weight:900;color:#0d3b6e;margin-top:5px;font-family:'Courier New',monospace;letter-spacing:.08em}
 
 /* Verification QR */
-.verify-box{display:flex;flex-direction:column;align-items:center;gap:8px}
+.verify-box{display:flex;flex-direction:column;align-items:center;gap:12px}
 .verify-box #certQR canvas,
-.verify-box #certQR img{border-radius:4px;border:3px solid #0d3b6e;padding:6px;background:#fff}
-.verify-label{font-size:.65rem;color:#0d3b6e;text-align:center;max-width:110px;line-height:1.5;font-weight:700;font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:.05em}
+.verify-box #certQR img{max-width:160px;max-height:160px;border-radius:6px;border:4px solid #0d3b6e;padding:8px;background:#fff;box-shadow:0 4px 12px rgba(13,59,110,.15)}
+.verify-label{font-size:.7rem;color:#0d3b6e;text-align:center;max-width:130px;line-height:1.6;font-weight:800;font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:.06em}
 
 .corner{position:absolute;width:40px;height:40px;z-index:4}
 .corner-tl{top:24px;left:24px;border-top:4px solid #0d3b6e;border-left:4px solid #0d3b6e}
@@ -146,7 +146,7 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
   html,body{width:279mm;height:216mm;margin:0;padding:0;background:#fff}
   body{padding:0;display:block}
   .print-bar{display:none!important}
-  .cert-wrap{box-shadow:none;width:279mm;height:216mm;max-width:none;page-break-after:avoid;page-break-inside:avoid;background:#fef8f3}
+  .cert-wrap{box-shadow:none;width:279mm;height:216mm;max-width:none;page-break-after:avoid;page-break-inside:avoid;background:#fef8f3;min-height:unset;aspect-ratio:unset}
   .cert-content{page-break-inside:avoid}
   @page{size:279mm 216mm landscape;margin:0}
 }
@@ -221,19 +221,19 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
       </div>
 
       <!-- Center: cert info + verification QR -->
-      <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:16px;justify-content:flex-end">
         <div class="cert-info-box">
           <div class="cert-info-label">Certificate No.</div>
           <div class="cert-info-val"><?= htmlspecialchars($certNo) ?></div>
-          <div style="margin-top:10px">
+          <div style="margin-top:12px;padding-top:12px;border-top:2px solid #0d3b6e">
             <div class="cert-info-label">Date Issued</div>
-            <div class="cert-info-val" style="font-family:'Inter',sans-serif;letter-spacing:0"><?= $issueDate ?></div>
+            <div class="cert-info-val" style="font-family:'Inter',sans-serif;letter-spacing:0;margin-top:6px"><?= $issueDate ?></div>
           </div>
         </div>
-        <!-- Verification QR -->
+        <!-- Verification QR - proper sizing -->
         <div class="verify-box">
-          <div id="certQR"></div>
-          <div class="verify-label">Scan to verify</div>
+          <div id="certQR" style="display:flex;align-items:center;justify-content:center"></div>
+          <div class="verify-label">Scan to verify certificate</div>
         </div>
       </div>
 
