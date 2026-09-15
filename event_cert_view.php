@@ -81,69 +81,72 @@ $verifyUrl    = 'http://' . $_SERVER['HTTP_HOST'] . '/verify_cert.php?cert=' . u
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:#e8ecf0;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:20px}
-.print-bar{background:#0d3b6e;color:#fff;padding:12px 24px;border-radius:12px;margin-bottom:20px;display:flex;align-items:center;gap:14px;width:100%;max-width:1100px;flex-wrap:wrap}
+body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:20px}
+.print-bar{background:#0d3b6e;color:#fff;padding:12px 24px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:14px;width:100%;max-width:1100px;flex-wrap:wrap}
 .print-bar span{flex:1;font-size:.9rem;font-weight:500}
-.btn-p{padding:9px 20px;background:#fff;color:#0d3b6e;border:none;border-radius:8px;font-family:inherit;font-size:.88rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:.2s;text-decoration:none}
-.btn-p:hover{background:#e3f2fd}
-.btn-back{padding:9px 20px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;font-family:inherit;font-size:.88rem;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:7px}
-.cert-wrap{width:1100px;height:850px;max-width:100%;background:#fff;position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.2)}
-.cert-border{position:absolute;inset:14px;border:3px solid #1565c0;pointer-events:none;z-index:2}
-.cert-border::before{content:'';position:absolute;inset:6px;border:1px solid #c8a84b;pointer-events:none}
-.cert-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 10% 10%,rgba(21,101,192,.04) 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,rgba(46,125,50,.04) 0%,transparent 50%)}
-.cert-content{position:relative;z-index:3;padding:36px 56px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:space-between}
-.cert-header{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:14px}
-.cert-seal{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.6rem;box-shadow:0 4px 16px rgba(0,0,0,.2);flex-shrink:0;overflow:hidden}
-.cert-org-main{font-size:1rem;font-weight:900;color:#0d3b6e;letter-spacing:.03em}
-.cert-org-sub{font-size:.75rem;color:#0d3b6e;font-weight:600;margin-top:2px}
-.gold-line{height:2px;background:linear-gradient(90deg,transparent,#c8a84b,#f0d060,#c8a84b,transparent);margin:10px 0;border-radius:2px}
-.thin-line{height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent);margin:8px 0}
-.cert-type{font-size:.8rem;font-weight:800;letter-spacing:.25em;text-transform:uppercase;color:#1565c0;margin-bottom:6px}
-.cert-title{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:#0d3b6e;line-height:1.2;margin-bottom:6px}
-.cert-presented{font-size:.78rem;color:#475569;margin:10px 0 4px;font-style:italic}
-.cert-name{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:#1565c0;border-bottom:3px solid #c8a84b;display:inline-block;padding-bottom:4px;margin-bottom:6px;min-width:340px;letter-spacing:.02em}
-.cert-barangay{font-size:.78rem;color:#0d3b6e;font-weight:500}
-.cert-body{font-size:.85rem;color:#0d3b6e;line-height:1.7;margin:12px 0;max-width:700px;margin-left:auto;margin-right:auto;font-weight:500}
-.cert-event{font-weight:800;color:#1565c0;font-size:.9rem}
+.btn-p{padding:10px 22px;background:#fff;color:#0d3b6e;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;transition:.2s;text-decoration:none}
+.btn-p:hover{background:#e8ecf0}
+.btn-back{padding:10px 22px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:7px}
+.cert-wrap{width:1100px;height:850px;max-width:100%;background:#fef8f3;position:relative;overflow:hidden;box-shadow:0 10px 50px rgba(0,0,0,.15)}
+.cert-border{position:absolute;inset:30px;border:2px solid #0d3b6e;pointer-events:none;z-index:2}
+.cert-border::before{content:'';position:absolute;inset:-4px;border:1px dashed #c8a84b;pointer-events:none;opacity:.6}
+.cert-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 10% 10%,rgba(13,59,110,.02) 0%,transparent 40%),radial-gradient(ellipse at 90% 90%,rgba(200,168,75,.02) 0%,transparent 40%)}
+.cert-content{position:relative;z-index:3;padding:48px 64px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:space-between;font-family:'Inter',sans-serif}
+.cert-header{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:20px}
+.cert-seal{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.8rem;box-shadow:0 6px 20px rgba(13,59,110,.25);flex-shrink:0;overflow:hidden}
+.cert-org-main{font-size:1.1rem;font-weight:900;color:#0d3b6e;letter-spacing:.05em;font-family:'Playfair Display',serif}
+.cert-org-sub{font-size:.76rem;color:#0d3b6e;font-weight:600;margin-top:3px;letter-spacing:.02em}
+.cert-org-address{font-size:.65rem;color:#666;margin-top:2px}
+.divider{height:3px;width:180px;background:linear-gradient(90deg,transparent,#c8a84b,transparent);margin:16px auto;border-radius:2px}
+.cert-type{font-size:.85rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:#c8a84b;margin-bottom:8px;font-family:'Inter',sans-serif}
+.cert-title{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;color:#0d3b6e;line-height:1.3;margin-bottom:12px}
+.cert-presented{font-size:.8rem;color:#666;margin:12px 0 6px;font-style:italic;font-family:'Inter',sans-serif}
+.cert-name{font-family:'Playfair Display',serif;font-size:2rem;font-weight:800;color:#0d3b6e;border-bottom:3px solid #c8a84b;display:inline-block;padding-bottom:8px;margin:8px 0;min-width:380px;letter-spacing:.03em}
+.cert-barangay{font-size:.78rem;color:#666;margin-top:4px;font-family:'Inter',sans-serif}
+.cert-body{font-size:.88rem;color:#333;line-height:1.8;margin:14px 0;max-width:720px;margin-left:auto;margin-right:auto;font-family:'Inter',sans-serif}
+.cert-event{font-weight:800;color:#0d3b6e;font-size:.95rem}
 
 /* Footer */
-.cert-footer{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;margin-top:14px;align-items:end}
-.cert-sig{text-align:center}
-.cert-sig-line{height:1px;background:#1565c0;margin-bottom:4px}
-.cert-sig-name{font-size:.72rem;font-weight:700;color:#0d3b6e}
-.cert-sig-title{font-size:.62rem;color:#475569;line-height:1.3}
-.cert-info-box{background:#f8fafc;border:2px solid #1565c0;border-radius:8px;padding:10px 14px;text-align:center}
-.cert-info-label{font-size:.65rem;color:#0d3b6e;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
-.cert-info-val{font-size:.78rem;font-weight:700;color:#0d3b6e;margin-top:3px}
+.cert-footer{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;margin-top:16px;align-items:flex-end}
+.cert-sig{text-align:center;font-family:'Inter',sans-serif}
+.cert-sig-line{height:2px;background:#0d3b6e;margin-bottom:6px;width:140px;margin-left:auto;margin-right:auto}
+.cert-sig-name{font-size:.75rem;font-weight:700;color:#0d3b6e}
+.cert-sig-title{font-size:.65rem;color:#666;line-height:1.4}
+.cert-info-box{background:#fef8f3;border:2px solid #0d3b6e;border-radius:6px;padding:12px 16px;text-align:center;font-family:'Inter',sans-serif}
+.cert-info-label{font-size:.68rem;color:#0d3b6e;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
+.cert-info-val{font-size:.82rem;font-weight:700;color:#0d3b6e;margin-top:4px;font-family:'Courier New',monospace;letter-spacing:.05em}
 
 /* Verification QR */
-.verify-box{display:flex;flex-direction:column;align-items:center;gap:6px}
+.verify-box{display:flex;flex-direction:column;align-items:center;gap:8px}
 .verify-box #certQR canvas,
-.verify-box #certQR img{border-radius:6px;border:2px solid #0d3b6e;padding:4px;background:#fff}
-.verify-label{font-size:.62rem;color:#0d3b6e;text-align:center;max-width:100px;line-height:1.4;font-weight:600}
+.verify-box #certQR img{border-radius:4px;border:3px solid #0d3b6e;padding:6px;background:#fff}
+.verify-label{font-size:.65rem;color:#0d3b6e;text-align:center;max-width:110px;line-height:1.5;font-weight:700;font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:.05em}
 
-.corner{position:absolute;width:36px;height:36px;z-index:4}
-.corner-tl{top:22px;left:22px;border-top:3px solid #c8a84b;border-left:3px solid #c8a84b}
-.corner-tr{top:22px;right:22px;border-top:3px solid #c8a84b;border-right:3px solid #c8a84b}
-.corner-bl{bottom:22px;left:22px;border-bottom:3px solid #c8a84b;border-left:3px solid #c8a84b}
-.corner-br{bottom:22px;right:22px;border-bottom:3px solid #c8a84b;border-right:3px solid #c8a84b}
-.cert-note{font-size:.65rem;color:#94a3b8;margin-top:8px}
+.corner{position:absolute;width:28px;height:28px;z-index:4}
+.corner-tl{top:28px;left:28px;border-top:3px solid #0d3b6e;border-left:3px solid #0d3b6e}
+.corner-tr{top:28px;right:28px;border-top:3px solid #0d3b6e;border-right:3px solid #0d3b6e}
+.corner-bl{bottom:28px;left:28px;border-bottom:3px solid #0d3b6e;border-left:3px solid #0d3b6e}
+.corner-br{bottom:28px;right:28px;border-bottom:3px solid #0d3b6e;border-right:3px solid #0d3b6e}
 
 @media(max-width:700px){
-  .cert-content{padding:28px 20px}
-  .cert-title{font-size:1.6rem}
-  .cert-name{font-size:1.4rem;min-width:unset}
-  .cert-footer{grid-template-columns:1fr}
-  .cert-header{flex-direction:column;gap:10px}
+  .cert-content{padding:36px 24px}
+  .cert-title{font-size:1.8rem}
+  .cert-name{font-size:1.6rem;min-width:unset;max-width:100%}
+  .cert-body{font-size:.82rem}
+  .cert-footer{grid-template-columns:1fr;gap:12px}
+  .cert-header{flex-direction:column;gap:12px}
   .verify-box{gap:8px}
   .verify-box #certQR canvas,
-  .verify-box #certQR img{width:130px!important;height:130px!important}
+  .verify-box #certQR img{width:130px!important;height:130px!important;border-width:2px}
+  .cert-sig-line{width:100px}
+  .cert-name{min-width:auto}
+  .divider{width:120px}
 }
 @media print{
-  html,body{width:279mm;height:216mm;margin:0;padding:0}
-  body{background:#fff;padding:0;display:block}
+  html,body{width:279mm;height:216mm;margin:0;padding:0;background:#fff}
+  body{padding:0;display:block}
   .print-bar{display:none!important}
-  .cert-wrap{box-shadow:none;width:279mm;height:216mm;max-width:none;page-break-after:avoid;page-break-inside:avoid}
+  .cert-wrap{box-shadow:none;width:279mm;height:216mm;max-width:none;page-break-after:avoid;page-break-inside:avoid;background:#fef8f3}
   .cert-content{page-break-inside:avoid}
   @page{size:279mm 216mm landscape;margin:0}
 }
@@ -174,20 +177,18 @@ body{font-family:'Inter',sans-serif;background:#e8ecf0;display:flex;flex-directi
       <div class="cert-seal" style="background:linear-gradient(135deg,#0d3b6e,#1565c0)">
         <img src="/lydo logo.png" alt="LYDO" style="width:80%;height:80%;object-fit:contain"/>
       </div>
-      <div>
+      <div style="flex:1">
         <div class="cert-org-main">Local Youth Development Office</div>
         <div class="cert-org-sub">Municipal Government of Sta. Cruz, Laguna</div>
-        <div style="font-size:.62rem;color:#94a3b8;margin-top:1px">Sta. Cruz, Laguna 4009 · Philippines</div>
+        <div class="cert-org-address">Sta. Cruz, Laguna 4009 · Philippines</div>
       </div>
       <div class="cert-seal" style="background:linear-gradient(135deg,#2e7d32,#43a047)"><i class="fas fa-award"></i></div>
     </div>
 
-    <div class="gold-line"></div>
+    <div class="divider"></div>
 
     <div class="cert-type">Certificate of Participation</div>
     <div class="cert-title">This is to Certify That</div>
-
-    <div class="thin-line"></div>
 
     <div class="cert-presented">This certificate is proudly presented to</div>
     <div class="cert-name"><?= htmlspecialchars($fullName) ?></div>
@@ -197,18 +198,18 @@ body{font-family:'Inter',sans-serif;background:#e8ecf0;display:flex;flex-directi
 
     <div class="cert-body">
       has successfully attended and participated in the
-      <br>
-      <span class="cert-event"><?= htmlspecialchars($event['title']) ?></span>
+      <br><strong>
+      <span class="cert-event"><?= htmlspecialchars($event['title']) ?></span></strong>
       <br>
       held on <strong><?= $eventDate ?></strong>
       <?php if ($event['location']): ?>
         at <strong><?= htmlspecialchars($event['location']) ?></strong>
       <?php endif; ?>
-      <br>
+      <br><br>
       organized by the Local Youth Development Office of Sta. Cruz, Laguna.
     </div>
 
-    <div class="gold-line"></div>
+    <div class="divider"></div>
 
     <!-- Footer -->
     <div class="cert-footer">
@@ -223,10 +224,10 @@ body{font-family:'Inter',sans-serif;background:#e8ecf0;display:flex;flex-directi
       <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
         <div class="cert-info-box">
           <div class="cert-info-label">Certificate No.</div>
-          <div class="cert-info-val" style="font-size:.8rem;font-family:monospace;letter-spacing:.05em"><?= htmlspecialchars($certNo) ?></div>
-          <div style="margin-top:8px">
+          <div class="cert-info-val"><?= htmlspecialchars($certNo) ?></div>
+          <div style="margin-top:10px">
             <div class="cert-info-label">Date Issued</div>
-            <div class="cert-info-val"><?= $issueDate ?></div>
+            <div class="cert-info-val" style="font-family:'Inter',sans-serif;letter-spacing:0"><?= $issueDate ?></div>
           </div>
         </div>
         <!-- Verification QR -->
