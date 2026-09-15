@@ -196,10 +196,30 @@ $userId = $pdo->lastInsertId();
 
 // ── Associate youth with organization ──────────────────────
 if ($youthOrganizationId) {
+    // Check if organization already has a president
+    $checkPres = $pdo->prepare('SELECT president_id FROM organizations WHERE id = ? LIMIT 1');
+    $checkPres->execute([$youthOrganizationId]);
+    $orgCheck = $checkPres->fetch();
+    $isFirstMember = !$orgCheck['president_id'];
+    
+    $memberRole = $isFirstMember ? 'President' : 'Member';
     $memberSql = 'INSERT INTO organization_members (organization_id, user_id, role, joined_at, is_active) 
                   VALUES (?, ?, ?, NOW(), 1) 
                   ON DUPLICATE KEY UPDATE is_active = 1';
-    $pdo->prepare($memberSql)->execute([$youthOrganizationId, $userId, 'Member']);
+    $pdo->prepare($memberSql)->execute([$youthOrganizationId, $userId, $memberRole]);
+    
+    // If first member, set as president
+    if ($isFirstMember) {
+        $updatePres = $pdo->prepare('UPDATE organizations SET president_id = ?, president_since = CURDATE() WHERE id = ?');
+        $updatePres->execute([$userId, $youthOrganizationId]);
+        
+        // Log in history
+        $historyLog = $pdo->prepare('
+            INSERT INTO organization_president_history (organization_id, president_id, started_at, reason)
+            VALUES (?, ?, CURDATE(), "initial_founding")
+        ');
+        $historyLog->execute([$youthOrganizationId, $userId]);
+    }
 }
 
 // ── Create Organization President Record ──────────────────

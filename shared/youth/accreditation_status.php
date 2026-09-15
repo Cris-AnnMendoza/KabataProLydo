@@ -300,12 +300,31 @@ $statusLabels = [
 
         <div class="info-grid">
             <div class="info-card">
+                <strong>Organization President</strong>
+                <span>
+                    <?php 
+                    if ($org['president_id']) {
+                        $pres = $pdo->prepare('SELECT first_name, last_name FROM youth_users WHERE id = ?');
+                        $pres->execute([$org['president_id']]);
+                        $presData = $pres->fetch();
+                        echo $presData ? htmlspecialchars($presData['first_name'] . ' ' . $presData['last_name']) : 'Unknown';
+                    } else {
+                        echo 'Not assigned';
+                    }
+                    ?>
+                </span>
+            </div>
+            <div class="info-card">
                 <strong>Organization Members</strong>
                 <span><?php echo $org['member_count']; ?></span>
             </div>
             <div class="info-card">
                 <strong>Accreditation Status</strong>
                 <span><?php echo $statusLabels[$org['accreditation_status']] ?? 'Unknown'; ?></span>
+            </div>
+            <div class="info-card">
+                <strong>President Since</strong>
+                <span><?php echo $org['president_since'] ? date('M d, Y', strtotime($org['president_since'])) : '—'; ?></span>
             </div>
         </div>
 

@@ -23,11 +23,14 @@ if (!$orgData) {
 
 $members = $pdo->prepare('
     SELECT u.id, u.first_name, u.middle_name, u.last_name, u.email, u.contact_number, u.barangay, u.status,
-           om.role, om.joined_at, om.is_active
+           u.graduation_year, u.educational_level,
+           om.role, om.joined_at, om.is_active,
+           (o.president_id = u.id) as is_president
     FROM organization_members om
     JOIN youth_users u ON om.user_id = u.id
+    JOIN organizations o ON om.organization_id = o.id
     WHERE om.organization_id = ?
-    ORDER BY om.joined_at DESC
+    ORDER BY om.role DESC, om.joined_at ASC
 ');
 $members->execute([$orgId]);
 $memberList = $members->fetchAll();
@@ -195,20 +198,25 @@ $memberList = $members->fetchAll();
                             <th>Contact</th>
                             <th>Barangay</th>
                             <th>Role</th>
+                            <th>Grad Year</th>
                             <th>Status</th>
                             <th>Joined</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($memberList as $member): ?>
-                            <tr>
+                            <tr style="<?php echo $member['is_president'] ? 'background:#fff8f0;border-left:4px solid #ff9800' : ''; ?>">
                                 <td>
                                     <strong><?=htmlspecialchars($member['first_name'] . ' ' . $member['last_name'])?></strong>
+                                    <?php if ($member['is_president']): ?>
+                                        <span class="badge" style="background:#ff9800;color:white;font-size:10px;margin-left:5px">👑 President</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td><?=htmlspecialchars($member['email'])?></td>
                                 <td><?=htmlspecialchars($member['contact_number'])?></td>
                                 <td><?=htmlspecialchars($member['barangay'])?></td>
                                 <td><?=htmlspecialchars($member['role'])?></td>
+                                <td><?php echo $member['graduation_year'] ? $member['graduation_year'] : '—'; ?></td>
                                 <td>
                                     <span class="badge <?php echo $member['status'] === 'approved' ? 'badge-active' : ($member['status'] === 'pending' ? 'badge-pending' : 'badge-inactive'); ?>">
                                         <?=ucfirst($member['status'])?>
