@@ -6,6 +6,47 @@ if (!hasPermission('view_users')) { header('Location: dashboard.php'); exit; }
 $pdo  = db();
 $tab  = $_GET['tab'] ?? 'youth';   // youth | staff | president
 
+// ── Ensure organization_presidents table exists ─────────────
+try {
+    $tableExists = $pdo->query("SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'organization_presidents'")->fetch();
+    if (!$tableExists) {
+        // Try to create the missing table
+        try {
+            $createTableSQL = "
+            CREATE TABLE IF NOT EXISTS organization_presidents (
+                id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                organization_id INT UNSIGNED NOT NULL,
+                user_id         INT UNSIGNED,
+                email           VARCHAR(191) NOT NULL UNIQUE,
+                password        VARCHAR(255) NOT NULL,
+                full_name       VARCHAR(200) NOT NULL,
+                contact_number  VARCHAR(20) DEFAULT NULL,
+                term_start      DATE DEFAULT NULL,
+                term_end        DATE DEFAULT NULL,
+                is_active       TINYINT(1) NOT NULL DEFAULT 1,
+                last_login      DATETIME DEFAULT NULL,
+                created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                
+                UNIQUE KEY uq_org_president (organization_id),
+                INDEX idx_org_pres_user (user_id),
+                INDEX idx_org_pres_active (is_active),
+                INDEX idx_org_pres_email (email),
+                
+                CONSTRAINT fk_org_pres_org FOREIGN KEY (organization_id) 
+                    REFERENCES organizations(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            ";
+            $pdo->exec($createTableSQL);
+            error_log("Created missing organization_presidents table");
+        } catch (Exception $e) {
+            error_log("Failed to create organization_presidents table: " . $e->getMessage());
+        }
+    }
+} catch (Exception $e) {
+    error_log("Table existence check error: " . $e->getMessage());
+}
+
 // ── Handle approve / reject ───────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['id'], $_POST['type'])) {
     $id     = (int)$_POST['id'];
@@ -237,11 +278,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['id'
 }
 
 // ── Counts for badges ─────────────────────────────────────
-$pendingYouth = (int)$pdo->query("SELECT COUNT(*) FROM youth_users WHERE status='pending'")->fetchColumn();
+try {
+    $pendingYouth = (int)$pdo->query("SELECT COUNT(*) FROM youth_users WHERE status='pending'")->fetchColumn();
+} catch (Exception $e) {
+    error_log("Youth count error: " . $e->getMessage());
+    $pendingYouth = 0;
+}
 // Admin users don't have pending status - they are either active or inactive
 $pendingStaff = 0;
 // Organization presidents pending approval
-$pendingPresidents = (int)$pdo->query("SELECT COUNT(*) FROM organization_presidents WHERE is_active = 0")->fetchColumn();
+try {
+    // Check if organization_presidents table exists first
+    $tableExists = $pdo->query("SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'organization_presidents'")->fetch();
+    if ($tableExists) {
+        $pendingPresidents = (int)$pdo->query("SELECT COUNT(*) FROM organization_presidents WHERE is_active = 0")->fetchColumn();
+    } else {
+        $pendingPresidents = 0;
+    }
+} catch (Exception $e) {
+    error_log("Presidents count error: " . $e->getMessage());
+    $pendingPresidents = 0;
+}
 
 // ── Fetch list ────────────────────────────────────────────
 $filter = $_GET['filter'] ?? 'pending';   // pending | approved | rejected | all
@@ -252,12 +309,17 @@ if ($tab === 'youth') {
     $whereStatus = $filter === 'all' ? '' : "WHERE status = ?";
     $query = "SELECT id,first_name,last_name,email,gender,barangay,youth_classification,status,created_at
                          FROM youth_users $whereStatus ORDER BY created_at DESC";
-    if ($filter === 'all') {
-        $rows = $pdo->query($query)->fetchAll();
-    } else {
-        $stmt = $pdo->prepare($query);
-        $stmt->execute([$filter]);
-        $rows = $stmt->fetchAll();
+    try {
+        if ($filter === 'all') {
+            $rows = $pdo->query($query)->fetchAll();
+        } else {
+            $stmt = $pdo->prepare($query);
+            $stmt->execute([$filter]);
+            $rows = $stmt->fetchAll();
+        }
+    } catch (Exception $e) {
+        error_log("Youth query error: " . $e->getMessage());
+        $rows = [];
     }
 } elseif ($tab === 'president') {
     // Organization presidents - use is_active field
@@ -273,11 +335,23 @@ if ($tab === 'youth') {
     } else {
         $whereStatus = '';
     }
-    $rows = $pdo->query("SELECT op.id, op.full_name, op.email, op.contact_number, op.is_active, op.created_at,
-                                o.name as organization_name
-                         FROM organization_presidents op
-                         LEFT JOIN organizations o ON o.id = op.organization_id
-                         $whereStatus ORDER BY op.created_at DESC")->fetchAll();
+    try {
+        // Check if table exists first
+        $tableExists = $pdo->query("SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'organization_presidents'")->fetch();
+        if ($tableExists) {
+            $rows = $pdo->query("SELECT op.id, op.full_name, op.email, op.contact_number, op.is_active, op.created_at,
+                                        o.name as organization_name
+                                 FROM organization_presidents op
+                                 LEFT JOIN organizations o ON o.id = op.organization_id
+                                 $whereStatus ORDER BY op.created_at DESC")->fetchAll();
+        } else {
+            $rows = [];
+            error_log("organization_presidents table does not exist");
+        }
+    } catch (Exception $e) {
+        error_log("President query error: " . $e->getMessage());
+        $rows = [];
+    }
 } else {
     // Admin users don't have status - use is_active instead
     if ($filter === 'approved') {
@@ -287,8 +361,13 @@ if ($tab === 'youth') {
     } else {
         $whereStatus = '';
     }
-    $rows = $pdo->query("SELECT id,full_name,email,role,barangay,is_active,created_at
-                         FROM admin_users $whereStatus ORDER BY created_at DESC")->fetchAll();
+    try {
+        $rows = $pdo->query("SELECT id,full_name,email,role,barangay,is_active,created_at
+                             FROM admin_users $whereStatus ORDER BY created_at DESC")->fetchAll();
+    } catch (Exception $e) {
+        error_log("Admin users query error: " . $e->getMessage());
+        $rows = [];
+    }
 }
 ?>
 <!DOCTYPE html>
