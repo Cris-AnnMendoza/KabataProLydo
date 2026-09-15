@@ -10,123 +10,16 @@ ini_set('log_errors', 1);
 
 require_once __DIR__ . '/../config.php';
 
-// AI Response Function using Groq API - Define BEFORE use
-function callGroqAI(string $input, string $name): string {
-    // Get API key - Try multiple methods to get environment variable
-    $apiKey = getenv('GROQ_API_KEY');
-    
-    // Try $_ENV if getenv didn't work
-    if (!$apiKey && isset($_ENV['GROQ_API_KEY'])) {
-        $apiKey = $_ENV['GROQ_API_KEY'];
-    }
-    
-    // Try $_SERVER as last resort
-    if (!$apiKey && isset($_SERVER['GROQ_API_KEY'])) {
-        $apiKey = $_SERVER['GROQ_API_KEY'];
-    }
-    
-    // If not found, try AI_API_KEY as fallback
-    if (!$apiKey) {
-        $apiKey = getenv('AI_API_KEY');
-    }
-    
-    if (!$apiKey && isset($_ENV['AI_API_KEY'])) {
-        $apiKey = $_ENV['AI_API_KEY'];
-    }
-    
-    if (!$apiKey) {
-        error_log('ERROR: GROQ_API_KEY or AI_API_KEY environment variable not found');
-        return "I'm currently unavailable. Please try again later.";
-    }
-    
-    // Use Groq API with mixtral model
-    $model = 'mixtral-8x7b-32768';
-    
-    $systemPrompt = "You are LYDO's Well-being Assistant, a caring and professional mental health support chatbot for Filipino youth and community leaders.
-
-**Your Role:**
-- Provide empathetic, practical mental health support
-- Answer ANY question - not just mental health topics
-- Be helpful, informative, and supportive
-- Use a warm, conversational tone
-
-**Guidelines:**
-- Address the user as '{$name}'
-- Keep responses under 500 words
-- Be culturally sensitive to Filipino context
-- Offer practical, actionable advice
-- For serious concerns, suggest professional help
-- You can discuss any topic: academics, relationships, career, technology, etc.
-- Always be encouraging and positive
-
-**Response Style:**
-- Use **bold** for emphasis
-- Include bullet points when listing tips
-- Use emojis appropriately
-- End with encouraging words
-
-**Important:** Provide helpful, accurate information while maintaining your supportive tone.";
-    
-    $data = [
-        'model' => $model,
-        'messages' => [
-            ['role' => 'system', 'content' => $systemPrompt],
-            ['role' => 'user', 'content' => $input]
-        ],
-        'temperature' => 0.7,
-        'max_tokens' => 800,
-        'top_p' => 0.9
-    ];
-
-    $url = 'https://api.groq.com/openai/v1/chat/completions';
-    $ch = curl_init($url);
-    
-    if (!$ch) {
-        error_log('ERROR: Failed to initialize curl');
-        return "I'm currently unavailable. Please try again later.";
-    }
-    
-    curl_setopt_array($ch, [
-        CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => json_encode($data),
-        CURLOPT_HTTPHEADER => [
-            "Authorization: Bearer $apiKey",
-            'Content-Type: application/json'
-        ],
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_SSL_VERIFYPEER => true,
-        CURLOPT_SSL_VERIFYHOST => 2
-    ]);
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
-    curl_close($ch);
-    
-    if ($curlError) {
-        error_log("CURL ERROR: $curlError");
-        return "I'm currently unavailable. Please try again later.";
-    }
-    
-    if ($httpCode !== 200 || !$response) {
-        error_log("API ERROR - HTTP $httpCode: " . substr($response, 0, 300));
-        return "I'm currently unavailable. Please try again later.";
-    }
-    
-    $decoded = json_decode($response, true);
-    if (isset($decoded['choices'][0]['message']['content'])) {
-        return $decoded['choices'][0]['message']['content'];
-    }
-    
-    error_log("ERROR: Missing expected response structure");
-    return "I'm currently unavailable. Please try again later.";
-}
+header('Content-Type: application/json');
 
 try {
+    error_log('DEBUG: wellbeing_ai.php starting');
+    
     // Allow both youth users and organization presidents
     $isYouth = !empty($_SESSION['user_id']);
     $isPresident = !empty($_SESSION['org_president_id']);
+    
+    error_log("DEBUG: isYouth=$isYouth, isPresident=$isPresident");
 
     if (!$isYouth && !$isPresident) {
         http_response_code(401);
@@ -134,7 +27,9 @@ try {
         exit;
     }
 
+    error_log('DEBUG: User authenticated');
     $pdo = db();
+    error_log('DEBUG: Database connected');
 
     // Get user info based on login type
     if ($isPresident) {
@@ -145,41 +40,50 @@ try {
         $user = $president;
     } else {
         $userId = (int)$_SESSION['user_id'];
+        error_log("DEBUG: Youth user ID: $userId");
         $uStmt = $pdo->prepare('SELECT * FROM youth_users WHERE id=? LIMIT 1');
         $uStmt->execute([$userId]);
         $user = $uStmt->fetch();
         if (!$user) {
+            error_log("DEBUG: Youth user not found: $userId");
             http_response_code(401);
             echo json_encode(['error' => 'User not found']);
             exit;
         }
         $userName = $user['first_name'] . ' ' . $user['last_name'];
         $userType = 'youth';
+        error_log("DEBUG: Youth user loaded: $userName");
     }
 
     // AJAX: process message
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_chat'])) {
-        header('Content-Type: application/json');
+        error_log('DEBUG: AJAX chat request received');
         
         $msg = trim($_POST['message'] ?? '');
+        error_log("DEBUG: Message: $msg");
+        
         if (!$msg || mb_strlen($msg) > 1000) {
             echo json_encode(['reply' => 'Please send a valid message (max 1000 characters).']);
             exit;
         }
 
         $firstName = $user['first_name'] ?? $user['full_name'] ?? 'Friend';
+        error_log("DEBUG: First name: $firstName");
         
         // For now, return a fallback response while we debug
-        $reply = "I'm here to listen and support you, $firstName. It sounds like you might be experiencing a headache. Have you tried resting, staying hydrated, or taking some pain relief medication? Remember, if the pain persists or worsens, it's always good to consult a healthcare professional. 💙";
+        $reply = "I'm here to listen and support you, $firstName. It sounds like you might need someone to talk to. I'm available 24/7 to help. What's on your mind? 💙";
 
         echo json_encode(['reply' => $reply, 'success' => true]);
         exit;
     }
+    
+    error_log('DEBUG: Not a POST request or missing ajax_chat');
+    echo json_encode(['error' => 'Invalid request']);
 
 } catch (Throwable $e) {
-    error_log('wellbeing_ai.php error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    error_log('ERROR in wellbeing_ai.php: ' . $e->getMessage());
+    error_log('ERROR trace: ' . $e->getTraceAsString());
     http_response_code(500);
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'Server error', 'message' => $e->getMessage()]);
+    echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
     exit;
 }
