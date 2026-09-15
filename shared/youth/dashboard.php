@@ -689,7 +689,7 @@ async function sendChatMessage() {
     formData.append('ajax_chat', '1');
     formData.append('message', message);
     
-    const response = await fetch('/shared/youth/wellbeing_ai.php', {
+    const response = await fetch('/chatbot_api.php', {
       method: 'POST',
       body: formData
     });
