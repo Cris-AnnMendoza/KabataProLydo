@@ -169,27 +169,18 @@ if ($host === 'localhost' || $host === '127.0.0.1' || strpos($host, 'localhost:'
 }
 $checkinUrl = 'http://' . $host . '/event_checkin.php?token=' . urlencode($event['qr_token']);
 
-// ── QR Code Generation ───────────────────────────────────
-// Generate QR as image using a simple algorithm
-function generateQRCodeImage(string $text, int $size = 200, string $colorDark = '000000', string $colorLight = 'ffffff'): string {
-    // Use Google Charts API to generate QR (simple, no dependency)
-    $encoded = urlencode($text);
-    $qrUrl = "https://chart.googleapis.com/chart?chs={$size}x{$size}&chd=D:{$encoded}&cht=qr";
-    return $qrUrl;
-}
+// Generate rotating QR URL (30-second window)
+$window = floor(time() / 30);
+$rotatingToken = substr(md5($eventId . $event['qr_token'] . $window . 'QR'), 0, 16);
+$rotatingQRUrl = $checkinUrl . '&rt=' . $rotatingToken;
+
+// Use QR Server API (free, no dependencies)
+$qrImageUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($rotatingQRUrl);
 
 function getSecondsUntilNextRotation(): int {
     return 30 - (time() % 30);
 }
 
-function getRotatingQRUrl(string $baseUrl, int $eventId, string $qrToken): string {
-    // Generate rotating token based on 30-second windows
-    $window = floor(time() / 30);
-    $rotatingToken = substr(md5($eventId . $qrToken . $window . 'QR'), 0, 16);
-    return $baseUrl . '&rt=' . $rotatingToken;
-}
-
-$rotatingQRUrl = getRotatingQRUrl($checkinUrl, $eventId, $event['qr_token']);
 $secsLeft = getSecondsUntilNextRotation();
 
 // ── Code availability logic ───────────────────────────────
@@ -393,7 +384,7 @@ $eventDate = date('F j, Y', strtotime($event['event_date']));
       <?= $event['checkin_open'] ? 'Check-in Open' : 'Check-in Closed' ?>
     </div>
     <div id="qrcode">
-      <img id="qrcodeImg" src="generate_qr.php?text=<?= urlencode($rotatingQRUrl) ?>&size=200&t=<?= time() ?>" alt="QR Code" style="border-radius:8px;width:200px;height:200px;image-rendering:pixelated">
+      <img id="qrcodeImg" src="" alt="QR Code" style="border-radius:8px;width:200px;height:200px;image-rendering:pixelated">
     </div>
     <div style="font-size:.82rem;font-weight:600;color:#0d3b6e;margin-bottom:6px">Scan to Check In</div>
 
@@ -534,7 +525,7 @@ $eventDate = date('F j, Y', strtotime($event['event_date']));
   <h2><?= htmlspecialchars($event['title']) ?></h2>
   <p><?= $eventDate ?><?= $event['location'] ? ' · ' . htmlspecialchars($event['location']) : '' ?></p>
   <div id="qrcode-fs">
-    <img id="qrcodeImg-fs" src="generate_qr.php?text=<?= urlencode($rotatingQRUrl) ?>&size=320&t=<?= time() ?>" alt="QR Code" style="border-radius:12px;width:320px;height:320px;image-rendering:pixelated;animation:pulse 2s infinite">
+    <img id="qrcodeImg-fs" src="" alt="QR Code" style="border-radius:12px;width:320px;height:320px;image-rendering:pixelated;animation:pulse 2s infinite">
   </div>
   <p style="font-size:1.1rem;font-weight:700">Scan to Check In</p>
   
@@ -631,11 +622,10 @@ function updateCountdown() {
       .then(r => r.json())
       .then(data => {
         if (data.success) {
-          // Update both QR images with new URL
-          document.querySelectorAll('img[id^="qrcodeImg"]').forEach(img => {
-            const newSrc = `admin2/generate_qr.php?text=${encodeURIComponent(data.qr_url)}&size=${img.id.includes('-fs') ? '320' : '200'}&t=${Date.now()}`;
-            img.src = newSrc;
-          });
+          // Update both QR images with new URLs (QR Server API)
+          document.getElementById('qrcodeImg').src = data.qr_url.replace('300x300', '200x200');
+          document.getElementById('qrcodeImg-fs').src = data.qr_url;
+          
           // Update countdown with new seconds
           countdown = data.seconds_left;
           document.getElementById('countdown').textContent = countdown;
@@ -645,6 +635,19 @@ function updateCountdown() {
       .catch(err => console.error('QR refresh failed:', err));
   }
 }
+
+// Initialize QR images on page load
+window.addEventListener('load', function() {
+  fetch(`admin2/event_qr_ajax.php?id=${eventId}`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('qrcodeImg').src = data.qr_url.replace('300x300', '200x200');
+        document.getElementById('qrcodeImg-fs').src = data.qr_url;
+      }
+    })
+    .catch(err => console.error('Initial QR load failed:', err));
+});
 
 // Update countdown every second
 setInterval(updateCountdown, 1000);

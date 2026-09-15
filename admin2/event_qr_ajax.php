@@ -52,7 +52,10 @@ $baseUrl = 'http://' . $host . '/event_checkin.php?token=' . urlencode($event['q
 // Generate rotating QR URL (30-second window)
 $window = floor(time() / 30);
 $rotatingToken = substr(md5($eventId . $event['qr_token'] . $window . 'QR'), 0, 16);
-$qrUrl = $baseUrl . '&rt=' . $rotatingToken;
+$checkinUrl = $baseUrl . '&rt=' . $rotatingToken;
+
+// Use QR Server (free, no auth needed)
+$qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($checkinUrl);
 
 // Calculate seconds until next rotation
 $secondsLeft = 30 - (time() % 30);
