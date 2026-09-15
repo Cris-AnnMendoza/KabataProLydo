@@ -14,6 +14,9 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS event_checkins (
     event_id      INT UNSIGNED NOT NULL,
     user_id       INT UNSIGNED NOT NULL,
     checked_in_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    checked_out_at DATETIME DEFAULT NULL,
+    checkin_photo VARCHAR(255) DEFAULT NULL,
+    checkout_photo VARCHAR(255) DEFAULT NULL,
     ip_address    VARCHAR(45)  DEFAULT NULL,
     UNIQUE KEY uq_event_user_checkin (event_id, user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
@@ -46,7 +49,11 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS notifications (
 foreach ([
     "ALTER TABLE events ADD COLUMN qr_token VARCHAR(64) DEFAULT NULL",
     "ALTER TABLE events ADD COLUMN checkin_open TINYINT(1) NOT NULL DEFAULT 1",
+    "ALTER TABLE events ADD COLUMN checkout_open TINYINT(1) NOT NULL DEFAULT 0",
     "ALTER TABLE events ADD COLUMN merit_points TINYINT UNSIGNED NOT NULL DEFAULT 2",
+    "ALTER TABLE event_checkins ADD COLUMN checked_out_at DATETIME DEFAULT NULL",
+    "ALTER TABLE event_checkins ADD COLUMN checkin_photo VARCHAR(255) DEFAULT NULL",
+    "ALTER TABLE event_checkins ADD COLUMN checkout_photo VARCHAR(255) DEFAULT NULL",
 ] as $sql) {
     try { $pdo->exec($sql); } catch (PDOException $e) { /* already exists */ }
 }
