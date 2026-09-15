@@ -5,6 +5,18 @@ requireLogin();
 $admin = currentAdmin();
 $pdo = db();
 
+// Ensure table exists
+$pdo->exec("CREATE TABLE IF NOT EXISTS contact_messages (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'unread',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
 // Handle mark as read
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_read'])) {
     $id = (int)$_POST['message_id'];
