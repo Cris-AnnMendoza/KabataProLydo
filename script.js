@@ -31,6 +31,64 @@ document.addEventListener('DOMContentLoaded', function() {
   const totalSteps = 5;
 
   // ─────────────────────────────────────────
+  // LOAD ORGANIZATIONS
+  // ─────────────────────────────────────────
+  
+  async function loadOrganizations() {
+    try {
+      // Load accredited orgs for president dropdown
+      const presResponse = await fetch('get_organizations.php?type=accredited');
+      const presData = await presResponse.json();
+      if (presData.success) {
+        const presSelect = document.getElementById('r_organization');
+        if (presSelect) {
+          presData.organizations.forEach(org => {
+            const option = document.createElement('option');
+            option.value = org.id;
+            option.textContent = org.name + (org.adviser_name ? ` (Adviser: ${org.adviser_name})` : '');
+            presSelect.appendChild(option);
+          });
+        }
+      }
+      
+      // Load all active orgs for youth member dropdown
+      const youthResponse = await fetch('get_organizations.php?type=all');
+      const youthData = await youthResponse.json();
+      if (youthData.success) {
+        const youthSelect = document.getElementById('r_org_name');
+        if (youthSelect) {
+          youthData.organizations.forEach(org => {
+            const option = document.createElement('option');
+            option.value = org.id;
+            const status = org.accreditation_status === 'active' ? '' : ' (Pending)';
+            option.textContent = org.name + status;
+            youthSelect.appendChild(option);
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading organizations:', error);
+    }
+  }
+  
+  // Load organizations on modal open
+  openRegisterBtn?.addEventListener('click', () => {
+    loadOrganizations();
+  });
+  navRegisterBtn?.addEventListener('click', () => {
+    loadOrganizations();
+  });
+  mobileRegisterBtn?.addEventListener('click', () => {
+    loadOrganizations();
+  });
+  heroRegisterBtn?.addEventListener('click', () => {
+    loadOrganizations();
+  });
+  ctaRegisterBtn?.addEventListener('click', () => {
+    loadOrganizations();
+  });
+
+  // ─────────────────────────────────────────
   // MODAL CONTROLS
   // ─────────────────────────────────────────
   

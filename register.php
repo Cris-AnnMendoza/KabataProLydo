@@ -91,14 +91,24 @@ if ($registerAs === 'organization_president') {
     
     $organizationId = (int)$_POST['organization_id'];
     
-    // Check if organization already has a president
-    $checkPres = $pdo->prepare('SELECT id FROM organization_presidents WHERE organization_id = ? AND is_active = 1 LIMIT 1');
-    $checkPres->execute([$organizationId]);
-    if ($checkPres->fetch()) {
-        http_response_code(409);
-        echo json_encode(['success' => false, 'message' => 'This organization already has a registered president.']);
+    // Verify organization exists and is accredited
+    $checkOrg = $pdo->prepare('SELECT id, accreditation_status FROM organizations WHERE id = ? LIMIT 1');
+    $checkOrg->execute([$organizationId]);
+    $orgData = $checkOrg->fetch();
+    
+    if (!$orgData) {
+        http_response_code(422);
+        echo json_encode(['success' => false, 'message' => 'Selected organization not found.']);
         exit;
     }
+    
+    if ($orgData['accreditation_status'] !== 'active') {
+        http_response_code(422);
+        echo json_encode(['success' => false, 'message' => 'You can only register as president of an accredited organization.']);
+        exit;
+    }
+    
+    // Note: Check for existing president removed - allow switching presidents
 } else {
     // Youth Member - MUST have an organization
     // Option 1: Select from existing accredited organizations
