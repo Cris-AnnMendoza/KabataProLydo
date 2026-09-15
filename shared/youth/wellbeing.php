@@ -201,7 +201,7 @@ function generateWellbeingReply(string $input, array $user, PDO $pdo, int $userI
     return callGroqAPI($input, $name, $userType) ?? getFallbackResponse($input, $name);
 }
 
-// Together AI API Call
+// Together AI API Call with fallback to Groq
 function callGroqAPI(string $input, string $name, string $userType): ?string {
     // Get API key from environment variable
     $apiKey = getenv('AI_API_KEY') ?: getenv('TOGETHER_API_KEY');
@@ -213,10 +213,10 @@ function callGroqAPI(string $input, string $name, string $userType): ?string {
 
     $systemPrompt = createWellbeingSystemPrompt($name, $userType);
     
-    // Use Together AI model with correct model name
-    $model = 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo';
+    // Try Groq API first (more reliable)
+    $model = 'mixtral-8x7b-32768';
     
-    error_log("Calling Together API with model: $model");
+    error_log("Calling Groq API with model: $model");
     
     $data = [
         'model' => $model,
@@ -229,8 +229,7 @@ function callGroqAPI(string $input, string $name, string $userType): ?string {
         'top_p' => 0.9
     ];
 
-    // Use correct Together API endpoint
-    $ch = curl_init('https://api.together.xyz/v1/chat/completions');
+    $ch = curl_init('https://api.groq.com/openai/v1/chat/completions');
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => json_encode($data),
