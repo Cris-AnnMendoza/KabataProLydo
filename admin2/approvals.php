@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'ensure_tables.php';
 require_once __DIR__ . '/../shared/email_config.php';
 requireLogin();
 if (!hasPermission('view_users')) { header('Location: dashboard.php'); exit; }
