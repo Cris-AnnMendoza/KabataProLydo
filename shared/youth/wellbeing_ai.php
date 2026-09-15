@@ -62,7 +62,8 @@ function callGroqAI(string $input, string $name): string {
         return "I'm currently unavailable. Please try again later.";
     }
     
-    $model = 'openai/gpt-4-turbo';
+    // Use Together AI Llama model
+    $model = 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo';
     
     $systemPrompt = "You are LYDO's Well-being Assistant, a caring and professional mental health support chatbot for Filipino youth and community leaders.
 

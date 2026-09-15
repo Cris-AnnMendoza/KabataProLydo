@@ -213,8 +213,8 @@ function callGroqAPI(string $input, string $name, string $userType): ?string {
 
     $systemPrompt = createWellbeingSystemPrompt($name, $userType);
     
-    // Use Together AI model
-    $model = 'openai/gpt-4-turbo';
+    // Use Together AI model with correct model name
+    $model = 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo';
     
     error_log("Calling Together API with model: $model");
     
@@ -229,6 +229,7 @@ function callGroqAPI(string $input, string $name, string $userType): ?string {
         'top_p' => 0.9
     ];
 
+    // Use correct Together API endpoint
     $ch = curl_init('https://api.together.xyz/v1/chat/completions');
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
