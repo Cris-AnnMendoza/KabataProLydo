@@ -52,6 +52,8 @@ foreach ([
 }
 
 $token = trim($_GET['token'] ?? '');
+$rotatingToken = trim($_GET['rt'] ?? '');
+
 if (!$token) {
     die('<div style="font-family:sans-serif;padding:40px;text-align:center;color:#c62828"><h2>Invalid QR Code</h2><p>No event token provided.</p></div>');
 }
@@ -63,6 +65,23 @@ $event = $evStmt->fetch();
 
 if (!$event) {
     die('<div style="font-family:sans-serif;padding:40px;text-align:center;color:#c62828"><h2>Event Not Found</h2><p>This QR code is not linked to any event.</p></div>');
+}
+
+// Validate rotating token (30-second window)
+if ($rotatingToken) {
+    $currentWindow = floor(time() / 30);
+    $expectedToken = substr(md5($event['id'] . $token . $currentWindow . 'QR'), 0, 16);
+    
+    // Allow current window + previous window (for edge case timing)
+    $prevWindow = floor((time() - 1) / 30);
+    $prevToken = substr(md5($event['id'] . $token . $prevWindow . 'QR'), 0, 16);
+    
+    if ($rotatingToken !== $expectedToken && $rotatingToken !== $prevToken) {
+        die('<div style="font-family:sans-serif;padding:40px;text-align:center;color:#c62828"><h2>QR Code Expired</h2><p>This QR code has expired. Please scan a fresh one.</p></div>');
+    }
+} else {
+    // No rotating token — reject (QR code must include it)
+    die('<div style="font-family:sans-serif;padding:40px;text-align:center;color:#c62828"><h2>Invalid QR Code</h2><p>This QR code is invalid or outdated. Please scan a fresh one.</p></div>');
 }
 
 if (!$event['checkin_open']) {

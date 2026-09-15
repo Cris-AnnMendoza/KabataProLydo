@@ -169,15 +169,24 @@ if ($host === 'localhost' || $host === '127.0.0.1' || strpos($host, 'localhost:'
 }
 $checkinUrl = 'http://' . $host . '/event_checkin.php?token=' . urlencode($event['qr_token']);
 
-// ── Rotating QR URL (changes every 30 seconds) ──
-function getRotatingQRUrl(string $baseUrl, int $eventId, string $qrToken): string {
-    $window = floor(time() / 30); // 30-second windows
-    $rotatingToken = substr(md5($eventId . $qrToken . $window . 'QR'), 0, 16);
-    return $baseUrl . '&rt=' . $rotatingToken;
+// ── QR Code Generation ───────────────────────────────────
+// Generate QR as image using a simple algorithm
+function generateQRCodeImage(string $text, int $size = 200, string $colorDark = '000000', string $colorLight = 'ffffff'): string {
+    // Use Google Charts API to generate QR (simple, no dependency)
+    $encoded = urlencode($text);
+    $qrUrl = "https://chart.googleapis.com/chart?chs={$size}x{$size}&chd=D:{$encoded}&cht=qr";
+    return $qrUrl;
 }
 
 function getSecondsUntilNextRotation(): int {
     return 30 - (time() % 30);
+}
+
+function getRotatingQRUrl(string $baseUrl, int $eventId, string $qrToken): string {
+    // Generate rotating token based on 30-second windows
+    $window = floor(time() / 30);
+    $rotatingToken = substr(md5($eventId . $qrToken . $window . 'QR'), 0, 16);
+    return $baseUrl . '&rt=' . $rotatingToken;
 }
 
 $rotatingQRUrl = getRotatingQRUrl($checkinUrl, $eventId, $event['qr_token']);
@@ -268,8 +277,6 @@ $eventDate = date('F j, Y', strtotime($event['event_date']));
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <link rel="stylesheet" href="admin.css"/>
-<!-- QR code library (self-hosted, no external dependency) -->
-<script src="qrcode.min.js"></script>
 <style>
 .qr-section{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start}
 .qr-box{background:#fff;border:2px solid #e2e8f0;border-radius:16px;padding:24px;text-align:center;min-width:260px}
@@ -385,7 +392,9 @@ $eventDate = date('F j, Y', strtotime($event['event_date']));
       <i class="fas fa-<?= $event['checkin_open'] ? 'lock-open' : 'lock' ?>"></i>
       <?= $event['checkin_open'] ? 'Check-in Open' : 'Check-in Closed' ?>
     </div>
-    <div id="qrcode"></div>
+    <div id="qrcode">
+      <img id="qrcodeImg" src="generate_qr.php?text=<?= urlencode($rotatingQRUrl) ?>&size=200&t=<?= time() ?>" alt="QR Code" style="border-radius:8px;width:200px;height:200px;image-rendering:pixelated">
+    </div>
     <div style="font-size:.82rem;font-weight:600;color:#0d3b6e;margin-bottom:6px">Scan to Check In</div>
 
     <!-- 30-second countdown timer -->
@@ -524,7 +533,9 @@ $eventDate = date('F j, Y', strtotime($event['event_date']));
   <button class="fs-close" onclick="closeFullscreen()"><i class="fas fa-times"></i></button>
   <h2><?= htmlspecialchars($event['title']) ?></h2>
   <p><?= $eventDate ?><?= $event['location'] ? ' · ' . htmlspecialchars($event['location']) : '' ?></p>
-  <div id="qrcode-fs" class="pulse"></div>
+  <div id="qrcode-fs">
+    <img id="qrcodeImg-fs" src="generate_qr.php?text=<?= urlencode($rotatingQRUrl) ?>&size=320&t=<?= time() ?>" alt="QR Code" style="border-radius:12px;width:320px;height:320px;image-rendering:pixelated;animation:pulse 2s infinite">
+  </div>
   <p style="font-size:1.1rem;font-weight:700">Scan to Check In</p>
   
   <!-- 30-second countdown in fullscreen -->
@@ -603,50 +614,9 @@ $eventDate = date('F j, Y', strtotime($event['event_date']));
 
 <script>
 const eventId = <?= $eventId ?>;
-const baseUrl = <?= json_encode($checkinUrl) ?>;
-let qrInstance = null;
-let qrInstanceFs = null;
 let countdown = <?= $secsLeft ?>;
 
-// Initialize QR codes
-function initQRCodes(url) {
-  // Clear existing QR codes
-  document.getElementById('qrcode').innerHTML = '';
-  document.getElementById('qrcode-fs').innerHTML = '';
-  
-  // Generate new QR codes
-  qrInstance = new QRCode(document.getElementById('qrcode'), {
-    text: url, width: 200, height: 200,
-    colorDark: '#0d3b6e', colorLight: '#ffffff',
-    correctLevel: QRCode.CorrectLevel.H
-  });
-  
-  qrInstanceFs = new QRCode(document.getElementById('qrcode-fs'), {
-    text: url, width: 320, height: 320,
-    colorDark: '#ffffff', colorLight: '#0d3b6e',
-    correctLevel: QRCode.CorrectLevel.H
-  });
-}
-
-// Fetch new rotating QR URL via AJAX
-function refreshQRCode() {
-  fetch('event_qr_ajax.php?id=' + eventId)
-    .then(response => response.json())
-    .then(data => {
-      if (data.success && data.qr_url) {
-        // Update QR codes without page reload
-        initQRCodes(data.qr_url);
-        countdown = data.seconds_left || 30;
-      }
-    })
-    .catch(error => {
-      console.error('QR refresh error:', error);
-      // Retry after 5 seconds on error
-      setTimeout(refreshQRCode, 5000);
-    });
-}
-
-// Update countdown timer
+// Update countdown timer and refresh QR every 30 seconds
 function updateCountdown() {
   document.getElementById('countdown').textContent = countdown;
   document.getElementById('countdownFs').textContent = countdown;
@@ -654,13 +624,27 @@ function updateCountdown() {
   countdown--;
   
   if (countdown < 0) {
-    // Time to refresh QR code
-    refreshQRCode();
+    // Time to refresh QR code - fetch new URL from server
+    countdown = 30;
+    
+    fetch(`admin2/event_qr_ajax.php?id=${eventId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          // Update both QR images with new URL
+          document.querySelectorAll('img[id^="qrcodeImg"]').forEach(img => {
+            const newSrc = `admin2/generate_qr.php?text=${encodeURIComponent(data.qr_url)}&size=${img.id.includes('-fs') ? '320' : '200'}&t=${Date.now()}`;
+            img.src = newSrc;
+          });
+          // Update countdown with new seconds
+          countdown = data.seconds_left;
+          document.getElementById('countdown').textContent = countdown;
+          document.getElementById('countdownFs').textContent = countdown;
+        }
+      })
+      .catch(err => console.error('QR refresh failed:', err));
   }
 }
-
-// Initialize with first QR code
-initQRCodes(<?= json_encode($rotatingQRUrl) ?>);
 
 // Update countdown every second
 setInterval(updateCountdown, 1000);
@@ -675,7 +659,6 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFullscr
 
 // Photo modal functions
 function showPhotos(data) {
-  // Populate user info
   document.getElementById('modalName').textContent = data.name || '—';
   document.getElementById('modalEmail').textContent = data.email || '—';
   document.getElementById('modalBarangay').textContent = data.barangay || '—';
@@ -683,11 +666,9 @@ function showPhotos(data) {
     ? '<code style="font-size:.85rem;background:#e3f2fd;padding:2px 8px;border-radius:4px">' + data.cert_number + '</code>'
     : '—';
   
-  // Update times
   document.getElementById('checkinTime').textContent = data.checkin_time || '—';
   document.getElementById('checkoutTime').textContent = data.checkout_time || 'Not checked out';
   
-  // Check-in photo
   const checkinContainer = document.getElementById('checkinPhotoContainer');
   if (data.checkin_photo) {
     checkinContainer.innerHTML = '<img src="/shared/uploads/event_photos/' + data.checkin_photo + '" alt="Check-in photo" style="max-width:100%;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1)" onerror="this.parentElement.innerHTML=\'<div class=\\\'photo-placeholder\\\'><i class=\\\'fas fa-exclamation-triangle\\\' style=\\\'font-size:2.5rem;margin-bottom:10px;display:block;color:#ef9a9a\\\'></i><div style=\\\'font-size:.85rem;color:#c62828\\\'>Photo file not found</div></div>\'">';
@@ -695,7 +676,6 @@ function showPhotos(data) {
     checkinContainer.innerHTML = '<div class="photo-placeholder"><i class="fas fa-image" style="font-size:2.5rem;margin-bottom:10px;display:block"></i><div style="font-size:.85rem">No photo uploaded</div></div>';
   }
   
-  // Check-out photo
   const checkoutContainer = document.getElementById('checkoutPhotoContainer');
   if (data.checkout_photo) {
     checkoutContainer.innerHTML = '<img src="/shared/uploads/event_photos/' + data.checkout_photo + '" alt="Check-out photo" style="max-width:100%;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1)" onerror="this.parentElement.innerHTML=\'<div class=\\\'photo-placeholder\\\'><i class=\\\'fas fa-exclamation-triangle\\\' style=\\\'font-size:2.5rem;margin-bottom:10px;display:block;color:#ef9a9a\\\'></i><div style=\\\'font-size:.85rem;color:#c62828\\\'>Photo file not found</div></div>\'">';
@@ -703,7 +683,6 @@ function showPhotos(data) {
     checkoutContainer.innerHTML = '<div class="photo-placeholder"><i class="fas fa-image" style="font-size:2.5rem;margin-bottom:10px;display:block"></i><div style="font-size:.85rem">No photo uploaded</div></div>';
   }
   
-  // Show modal
   document.getElementById('photoModal').classList.add('open');
 }
 
@@ -711,7 +690,6 @@ function closePhotoModal() {
   document.getElementById('photoModal').classList.remove('open');
 }
 
-// Close modal on ESC key
 document.addEventListener('keydown', e => { 
   if (e.key === 'Escape') {
     closeFullscreen();
