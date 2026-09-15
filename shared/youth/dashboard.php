@@ -689,10 +689,16 @@ async function sendChatMessage() {
     formData.append('ajax_chat', '1');
     formData.append('message', message);
     
-    const response = await fetch('./wellbeing_ai.php', {
+    const response = await fetch('/shared/youth/wellbeing_ai.php', {
       method: 'POST',
       body: formData
     });
+    
+    if (!response.ok) {
+      console.error('Response error:', response.status, response.statusText);
+      throw new Error(`HTTP ${response.status}`);
+    }
+    
     const data = await response.json();
     
     const botMsg = document.createElement('div');
@@ -706,6 +712,7 @@ async function sendChatMessage() {
     messages.appendChild(botMsg);
     messages.scrollTop = messages.scrollHeight;
   } catch (error) {
+    console.error('Chatbot error:', error);
     const errMsg = document.createElement('div');
     errMsg.style.cssText = 'display:flex;gap:8px';
     errMsg.innerHTML = `
