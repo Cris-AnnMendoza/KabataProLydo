@@ -6,7 +6,7 @@ $pdo = db();
 
 // Check if Cris-Ann already exists
 $checkPresident = $pdo->prepare('SELECT id FROM organization_presidents WHERE email = ? LIMIT 1');
-$checkPresident->execute(['crisann@lydo.local']);
+$checkPresident->execute(['crisann.mendoza@gmail.com']);
 if ($checkPresident->fetch()) {
     echo "Cris-Ann Mendoza already exists as a president.<br>";
     exit;
@@ -44,7 +44,7 @@ $pdo->prepare('
 ')->execute([
     $orgId,
     'Cris-Ann Mendoza',
-    'crisann@lydo.local',
+    'crisann.mendoza@gmail.com',
     $password
 ]);
 
@@ -52,7 +52,7 @@ $presidentId = $pdo->lastInsertId();
 echo "✓ Created president user (ID: $presidentId)<br>";
 echo "<br>";
 echo "Login credentials:<br>";
-echo "Email: crisann@lydo.local<br>";
+echo "Email: crisann.mendoza@gmail.com<br>";
 echo "Password: password123<br>";
 echo "<br>";
 echo "Organization: Cris-Ann Test Organization (ID: $orgId)<br>";
