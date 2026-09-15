@@ -87,34 +87,34 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
 .btn-p{padding:10px 22px;background:#fff;color:#0d3b6e;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;transition:.2s;text-decoration:none}
 .btn-p:hover{background:#e8ecf0}
 .btn-back{padding:10px 22px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:7px}
-.cert-wrap{width:1100px;height:850px;max-width:100%;background:#fef8f3;position:relative;overflow:hidden;box-shadow:0 10px 50px rgba(0,0,0,.15)}
-.cert-border{position:absolute;inset:30px;border:2px solid #0d3b6e;pointer-events:none;z-index:2}
-.cert-border::before{content:'';position:absolute;inset:-4px;border:1px dashed #c8a84b;pointer-events:none;opacity:.6}
+.cert-wrap{width:1100px;height:850px;max-width:100%;background:#faf6f0;position:relative;overflow:hidden;box-shadow:0 12px 60px rgba(13,59,110,.2)}
+.cert-border{position:absolute;inset:26px;border:4px double #0d3b6e;pointer-events:none;z-index:2}
+.cert-border::before{content:'';position:absolute;inset:8px;border:1px solid #c8a84b;pointer-events:none}
 .cert-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 10% 10%,rgba(13,59,110,.02) 0%,transparent 40%),radial-gradient(ellipse at 90% 90%,rgba(200,168,75,.02) 0%,transparent 40%)}
 .cert-content{position:relative;z-index:3;padding:48px 64px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:space-between;font-family:'Inter',sans-serif}
 .cert-header{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:20px}
-.cert-seal{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.8rem;box-shadow:0 6px 20px rgba(13,59,110,.25);flex-shrink:0;overflow:hidden}
-.cert-org-main{font-size:1.1rem;font-weight:900;color:#0d3b6e;letter-spacing:.05em;font-family:'Playfair Display',serif}
-.cert-org-sub{font-size:.76rem;color:#0d3b6e;font-weight:600;margin-top:3px;letter-spacing:.02em}
-.cert-org-address{font-size:.65rem;color:#666;margin-top:2px}
-.divider{height:3px;width:180px;background:linear-gradient(90deg,transparent,#c8a84b,transparent);margin:16px auto;border-radius:2px}
-.cert-type{font-size:.85rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:#c8a84b;margin-bottom:8px;font-family:'Inter',sans-serif}
-.cert-title{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;color:#0d3b6e;line-height:1.3;margin-bottom:12px}
-.cert-presented{font-size:.8rem;color:#666;margin:12px 0 6px;font-style:italic;font-family:'Inter',sans-serif}
-.cert-name{font-family:'Playfair Display',serif;font-size:2rem;font-weight:800;color:#0d3b6e;border-bottom:3px solid #c8a84b;display:inline-block;padding-bottom:8px;margin:8px 0;min-width:380px;letter-spacing:.03em}
-.cert-barangay{font-size:.78rem;color:#666;margin-top:4px;font-family:'Inter',sans-serif}
-.cert-body{font-size:.88rem;color:#333;line-height:1.8;margin:14px 0;max-width:720px;margin-left:auto;margin-right:auto;font-family:'Inter',sans-serif}
-.cert-event{font-weight:800;color:#0d3b6e;font-size:.95rem}
+.cert-seal{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.8rem;box-shadow:0 8px 24px rgba(13,59,110,.3);flex-shrink:0;overflow:hidden;border:2px solid rgba(255,255,255,.3)}
+.cert-org-main{font-size:1.15rem;font-weight:900;color:#0d3b6e;letter-spacing:.06em;font-family:'Playfair Display',serif}
+.cert-org-sub{font-size:.78rem;color:#0d3b6e;font-weight:700;margin-top:3px;letter-spacing:.02em}
+.cert-org-address{font-size:.66rem;color:#333;margin-top:3px;font-weight:500}
+.divider{height:2px;width:200px;background:linear-gradient(90deg,transparent,#0d3b6e,#c8a84b,#0d3b6e,transparent);margin:18px auto;border-radius:2px}
+.cert-type{font-size:.88rem;font-weight:900;letter-spacing:.4em;text-transform:uppercase;color:#c8a84b;margin-bottom:10px;font-family:'Inter',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,.05)}
+.cert-title{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:#0d3b6e;line-height:1.2;margin-bottom:14px;letter-spacing:.01em}
+.cert-presented{font-size:.82rem;color:#333;margin:14px 0 8px;font-style:italic;font-family:'Inter',sans-serif;font-weight:500}
+.cert-name{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;color:#0d3b6e;border-bottom:4px solid #c8a84b;display:inline-block;padding-bottom:10px;margin:10px 0;min-width:400px;letter-spacing:.04em;text-transform:uppercase}
+.cert-barangay{font-size:.8rem;color:#333;margin-top:6px;font-family:'Inter',sans-serif;font-weight:600}
+.cert-body{font-size:.9rem;color:#333;line-height:1.85;margin:16px 0;max-width:740px;margin-left:auto;margin-right:auto;font-family:'Inter',sans-serif;letter-spacing:.01em}
+.cert-event{font-weight:900;color:#0d3b6e;font-size:.98rem;text-transform:uppercase;letter-spacing:.02em}
 
 /* Footer */
 .cert-footer{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;margin-top:16px;align-items:flex-end}
 .cert-sig{text-align:center;font-family:'Inter',sans-serif}
-.cert-sig-line{height:2px;background:#0d3b6e;margin-bottom:6px;width:140px;margin-left:auto;margin-right:auto}
-.cert-sig-name{font-size:.75rem;font-weight:700;color:#0d3b6e}
-.cert-sig-title{font-size:.65rem;color:#666;line-height:1.4}
-.cert-info-box{background:#fef8f3;border:2px solid #0d3b6e;border-radius:6px;padding:12px 16px;text-align:center;font-family:'Inter',sans-serif}
-.cert-info-label{font-size:.68rem;color:#0d3b6e;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
-.cert-info-val{font-size:.82rem;font-weight:700;color:#0d3b6e;margin-top:4px;font-family:'Courier New',monospace;letter-spacing:.05em}
+.cert-sig-line{height:3px;background:#0d3b6e;margin-bottom:6px;width:160px;margin-left:auto;margin-right:auto}
+.cert-sig-name{font-size:.76rem;font-weight:900;color:#0d3b6e;letter-spacing:.02em;text-transform:uppercase}
+.cert-sig-title{font-size:.66rem;color:#333;line-height:1.5;font-weight:600}
+.cert-info-box{background:#faf6f0;border:3px solid #0d3b6e;border-radius:4px;padding:14px 18px;text-align:center;font-family:'Inter',sans-serif;box-shadow:0 2px 8px rgba(13,59,110,.1)}
+.cert-info-label{font-size:.7rem;color:#0d3b6e;text-transform:uppercase;letter-spacing:.1em;font-weight:900}
+.cert-info-val{font-size:.85rem;font-weight:900;color:#0d3b6e;margin-top:5px;font-family:'Courier New',monospace;letter-spacing:.08em}
 
 /* Verification QR */
 .verify-box{display:flex;flex-direction:column;align-items:center;gap:8px}
@@ -122,11 +122,11 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
 .verify-box #certQR img{border-radius:4px;border:3px solid #0d3b6e;padding:6px;background:#fff}
 .verify-label{font-size:.65rem;color:#0d3b6e;text-align:center;max-width:110px;line-height:1.5;font-weight:700;font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:.05em}
 
-.corner{position:absolute;width:28px;height:28px;z-index:4}
-.corner-tl{top:28px;left:28px;border-top:3px solid #0d3b6e;border-left:3px solid #0d3b6e}
-.corner-tr{top:28px;right:28px;border-top:3px solid #0d3b6e;border-right:3px solid #0d3b6e}
-.corner-bl{bottom:28px;left:28px;border-bottom:3px solid #0d3b6e;border-left:3px solid #0d3b6e}
-.corner-br{bottom:28px;right:28px;border-bottom:3px solid #0d3b6e;border-right:3px solid #0d3b6e}
+.corner{position:absolute;width:40px;height:40px;z-index:4}
+.corner-tl{top:24px;left:24px;border-top:4px solid #0d3b6e;border-left:4px solid #0d3b6e}
+.corner-tr{top:24px;right:24px;border-top:4px solid #0d3b6e;border-right:4px solid #0d3b6e}
+.corner-bl{bottom:24px;left:24px;border-bottom:4px solid #0d3b6e;border-left:4px solid #0d3b6e}
+.corner-br{bottom:24px;right:24px;border-bottom:4px solid #0d3b6e;border-right:4px solid #0d3b6e}
 
 @media(max-width:700px){
   .cert-content{padding:36px 24px}
