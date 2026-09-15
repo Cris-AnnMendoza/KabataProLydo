@@ -170,25 +170,6 @@ async function sendMessage() {
     sendBtn.disabled = false;
   }
 }
-    
-    const data = await response.json();
-    hideTyping();
-    
-    if (data.reply) {
-      addMessage(data.reply);
-    } else if (data.error) {
-      addMessage('Sorry, I encountered an error: ' + data.error);
-    } else {
-      addMessage('Sorry, I encountered an error. Please try again.');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    hideTyping();
-    addMessage('I\'m currently experiencing technical difficulties. Please try again later or contact LYDO support for immediate assistance.');
-  }
-  
-  sendBtn.disabled = false;
-}
 
 function sendQuickMessage(message) {
   messageInput.value = message;

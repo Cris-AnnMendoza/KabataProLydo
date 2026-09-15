@@ -685,10 +685,13 @@ async function sendChatMessage() {
   
   // Send to server
   try {
-    const response = await fetch('wellbeing_popup.php', {
+    const formData = new FormData();
+    formData.append('ajax_chat', '1');
+    formData.append('message', message);
+    
+    const response = await fetch('./wellbeing_ai.php', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: message })
+      body: formData
     });
     const data = await response.json();
     
