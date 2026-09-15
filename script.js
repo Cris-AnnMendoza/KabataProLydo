@@ -34,12 +34,20 @@ document.addEventListener('DOMContentLoaded', function() {
   // LOAD ORGANIZATIONS
   // ─────────────────────────────────────────
   
+  let organizationsLoaded = false;
+  
   async function loadOrganizations() {
+    if (organizationsLoaded) return; // Prevent duplicate loads
+    
     try {
+      console.log('Loading organizations...');
+      
       // Load accredited orgs for president dropdown
       const presResponse = await fetch('get_organizations.php?type=accredited');
       const presData = await presResponse.json();
-      if (presData.success) {
+      console.log('President orgs:', presData);
+      
+      if (presData.success && presData.organizations) {
         const presSelect = document.getElementById('r_organization');
         if (presSelect) {
           presData.organizations.forEach(org => {
@@ -48,13 +56,16 @@ document.addEventListener('DOMContentLoaded', function() {
             option.textContent = org.name + (org.adviser_name ? ` (Adviser: ${org.adviser_name})` : '');
             presSelect.appendChild(option);
           });
+          console.log('Added', presData.organizations.length, 'accredited orgs to president dropdown');
         }
       }
       
       // Load all active orgs for youth member dropdown
       const youthResponse = await fetch('get_organizations.php?type=all');
       const youthData = await youthResponse.json();
-      if (youthData.success) {
+      console.log('Youth orgs:', youthData);
+      
+      if (youthData.success && youthData.organizations) {
         const youthSelect = document.getElementById('r_org_name');
         if (youthSelect) {
           youthData.organizations.forEach(org => {
@@ -64,27 +75,22 @@ document.addEventListener('DOMContentLoaded', function() {
             option.textContent = org.name + status;
             youthSelect.appendChild(option);
           });
+          console.log('Added', youthData.organizations.length, 'orgs to youth dropdown');
         }
       }
+      
+      organizationsLoaded = true;
     } catch (error) {
       console.error('Error loading organizations:', error);
     }
   }
   
-  // Load organizations on modal open
-  openRegisterBtn?.addEventListener('click', () => {
-    loadOrganizations();
-  });
-  navRegisterBtn?.addEventListener('click', () => {
-    loadOrganizations();
-  });
-  mobileRegisterBtn?.addEventListener('click', () => {
-    loadOrganizations();
-  });
-  heroRegisterBtn?.addEventListener('click', () => {
-    loadOrganizations();
-  });
-  ctaRegisterBtn?.addEventListener('click', () => {
+  // Load organizations immediately on page load
+  loadOrganizations();
+  
+  // Also load on modal open (just in case)
+  registerModal?.addEventListener('click', (e) => {
+    if (e.target === registerModal) return;
     loadOrganizations();
   });
 
