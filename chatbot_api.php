@@ -1,6 +1,6 @@
 <?php
 /**
- * Chatbot API endpoint - handles wellbeing chat requests
+ * Chatbot API endpoint - handles wellbeing chat requests with Groq AI
  */
 session_start();
 error_reporting(0);
@@ -51,16 +51,13 @@ try {
         $userName = $president['full_name'] ?? 'Friend';
     }
     
-    // Generate response
-    $replies = [
-        "I'm here to listen and support you, $userName. It sounds like you might need someone to talk to. I'm available 24/7 to help. What's on your mind? 💙",
-        "Thank you for sharing with me, $userName. Your feelings are valid and important. How can I best support you right now?",
-        "I appreciate your trust, $userName. Let's work through this together. What would help you most right now?",
-        "You're not alone in this, $userName. I'm here to listen without judgment. What's bothering you?",
-        "Your wellbeing matters, $userName. I'm here to support you. Tell me more about what you're experiencing."
-    ];
+    // Try to get AI response from Groq
+    $reply = callGroqAI($message, $userName);
     
-    $reply = $replies[array_rand($replies)];
+    if (!$reply) {
+        // Fallback if API fails
+        $reply = "I'm here to listen and support you, $userName. I'm having trouble processing that right now. Please try again or reach out to our support team.";
+    }
     
     echo json_encode(['reply' => $reply, 'success' => true]);
     
@@ -68,5 +65,66 @@ try {
     http_response_code(500);
     echo json_encode(['error' => 'Server error']);
     exit;
+}
+
+/**
+ * Call Groq API for wellbeing assistant response
+ */
+function callGroqAI($userMessage, $userName) {
+    $apiKey = getenv('GROQ_API_KEY');
+    
+    // Try different env var names that might be set
+    if (!$apiKey) {
+        $apiKey = getenv('AI_API_KEY');
+    }
+    
+    if (!$apiKey) {
+        return null; // No API key configured
+    }
+    
+    $systemPrompt = "You are LYDO, a compassionate wellbeing assistant for Filipino youth. You provide supportive, empathetic responses to mental health and wellness concerns. Keep responses concise (2-3 sentences max), friendly, and encouraging. Never provide medical diagnosis - suggest professional help when appropriate. Use the person's name when responding. Always respond in English or Tagalog as appropriate.";
+    
+    $payload = [
+        'model' => 'mixtral-8x7b-32768',
+        'messages' => [
+            [
+                'role' => 'system',
+                'content' => $systemPrompt
+            ],
+            [
+                'role' => 'user',
+                'content' => "User name: $userName\n\nUser: $userMessage"
+            ]
+        ],
+        'max_tokens' => 500,
+        'temperature' => 0.7
+    ];
+    
+    $ch = curl_init('https://api.groq.com/openai/v1/chat/completions');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $apiKey
+        ],
+        CURLOPT_POSTFIELDS => json_encode($payload)
+    ]);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode !== 200 || !$response) {
+        return null;
+    }
+    
+    $data = json_decode($response, true);
+    
+    if (isset($data['choices'][0]['message']['content'])) {
+        return trim($data['choices'][0]['message']['content']);
+    }
+    
+    return null;
 }
 ?>
