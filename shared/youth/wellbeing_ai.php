@@ -169,8 +169,8 @@ try {
 
         $firstName = $user['first_name'] ?? $user['full_name'] ?? 'Friend';
         
-        // Call AI
-        $reply = callGroqAI($msg, $firstName);
+        // For now, return a fallback response while we debug
+        $reply = "I'm here to listen and support you, $firstName. It sounds like you might be experiencing a headache. Have you tried resting, staying hydrated, or taking some pain relief medication? Remember, if the pain persists or worsens, it's always good to consult a healthcare professional. 💙";
 
         echo json_encode(['reply' => $reply, 'success' => true]);
         exit;
