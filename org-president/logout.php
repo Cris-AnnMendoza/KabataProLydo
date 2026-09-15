@@ -14,6 +14,10 @@ if (!empty($_SESSION['org_president_id'])) {
         $pdo = db();
         $pdo->prepare('INSERT INTO organization_president_activity_log (president_id, action, ip_address) VALUES (?, ?, ?)')
             ->execute([$_SESSION['org_president_id'], 'Logout', $_SERVER['REMOTE_ADDR'] ?? null]);
+        
+        // Clear remember me token from database
+        $pdo->prepare('DELETE FROM president_remember_tokens WHERE president_id = ?')
+            ->execute([$_SESSION['org_president_id']]);
     } catch (Exception $e) {
         // Silent fail - just logout anyway
     }
@@ -27,10 +31,12 @@ if (isset($_COOKIE[session_name()])) {
     setcookie(session_name(), '', time() - 3600, '/');
 }
 
+// Destroy remember me cookie
+setcookie('remember_me_token', '', time() - 3600, '/');
+
 // Destroy the session
 session_destroy();
 
 // Redirect to login
 header('Location: /login.php');
 exit;
-?>

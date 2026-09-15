@@ -52,6 +52,13 @@ if($_SERVER['REQUEST_METHOD']==='POST'&&isset($_POST['ajax_scan'])){
         $startTs=strtotime(date('Y-m-d').' '.$st);
         $deadlineTs=$startTs+900; // +15 minutes
         $nowTs=time();
+        
+        // Check if check-in hasn't started yet
+        if($nowTs<$startTs){
+            $startStr=date('g:i A',$startTs);
+            echo json_encode(['success'=>false,'message'=>'Check-in not yet open. Check-in begins at '.$startStr.'.']);exit;
+        }
+        // Check if check-in window has passed
         if($nowTs>$deadlineTs){
             $deadlineStr=date('g:i A',$deadlineTs);
             echo json_encode(['success'=>false,'message'=>'Check-in closed. The 15-minute window ended at '.$deadlineStr.'. Hindi na pwede mag check-in kapag late.']);exit;

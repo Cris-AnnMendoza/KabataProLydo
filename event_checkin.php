@@ -91,9 +91,33 @@ if ($rotatingToken) {
     die('<div style="font-family:sans-serif;padding:40px;text-align:center;color:#c62828"><h2>Invalid QR Code</h2><p>This QR code is invalid or outdated. Please scan a fresh one.</p></div>');
 }
 
+// Check if check-in is allowed based on time window
+$closed = false;
+
+// Validate check-in time window
+$now       = date('H:i:s');
+$startTime = $event['event_start_time'] ?? null;
+$endTime   = $event['event_end_time']   ?? null;
+
+// Normalize H:i → H:i:s format
+if ($startTime && strlen($startTime) === 5) $startTime .= ':00';
+if ($endTime   && strlen($endTime)   === 5) $endTime   .= ':00';
+
+// Check-in: available from start_time until start_time + 15 minutes
 if (!$event['checkin_open']) {
+    // Admin has manually closed check-in
     $closed = true;
+} elseif ($startTime) {
+    // Event has a start time - enforce 15-minute window
+    $startTs         = strtotime(date('Y-m-d') . ' ' . $startTime);
+    $checkinDeadline = date('H:i:s', $startTs + 900); // +15 minutes
+    
+    // Check-in only available from start_time to start_time + 15 minutes
+    if ($now < $startTime || $now >= $checkinDeadline) {
+        $closed = true;
+    }
 }
+// If no start time and checkin_open=1, check-in is available
 
 // If not logged in, redirect to login then back here
 if (empty($_SESSION['user_id'])) {

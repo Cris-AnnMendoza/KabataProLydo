@@ -3,6 +3,34 @@
 ## Overview
 Implemented a hybrid organization accreditation workflow that requires youth members to have an organization while supporting both existing accredited organizations and pending organization creation.
 
+## Recent Improvements: Session Persistence for Mobile
+
+### Mobile Session Management Fix
+**Problem:** Mobile browsers were clearing sessions on background/refresh, forcing users to re-login.
+
+**Solution:** Implemented "Remember Me" token system:
+- Creates secure tokens in database that persist across sessions
+- Tokens expire after 30 days (configurable)
+- Verified on each login attempt
+- Automatically restores session for returning users
+
+**Implementation:**
+- New database tables: `admin_remember_tokens`, `president_remember_tokens`, `youth_remember_tokens`
+- Updated `login.php` to check for valid tokens on page load
+- "Remember Me" checkbox available on login form
+- Tokens cleared on logout for security
+- Setup script: `/admin2/setup_remember_me_tables.php`
+
+**Login Form Fix:**
+- Fixed dropdown sync issue where login account type wasn't being sent
+- Added JavaScript to properly sync `login_as` dropdown with form submission
+
+### Deployment Checklist for Session Fix
+1. Run database migration: `database/add_remember_me_tokens.sql`
+2. Or run setup script: `/admin2/setup_remember_me_tables.php?key=lydo_setup_[hash]`
+3. Test on mobile: Check "Remember Me" on login, close browser, reopen → should restore session
+4. Session configuration optimized for mobile persistence
+
 ## Key Features
 
 ### 1. Youth Registration Flow

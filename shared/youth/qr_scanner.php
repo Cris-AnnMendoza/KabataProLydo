@@ -77,7 +77,15 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['scanned_token'])){
                                         $startTs = strtotime(date('Y-m-d') . ' ' . $st);
                                         $deadlineTs = $startTs + 900; // +15 minutes
                                         $nowTs = time();
-                                        if($nowTs > $deadlineTs){
+                                        
+                                        // Check if check-in hasn't started yet
+                                        if($nowTs < $startTs){
+                                            $canCheckIn = false;
+                                            $startStr = date('g:i A', $startTs);
+                                            $scanMessage = 'Check-in not yet open. Check-in begins at ' . $startStr . '.';
+                                        }
+                                        // Check if check-in window has passed
+                                        elseif($nowTs > $deadlineTs){
                                             $canCheckIn = false;
                                             $deadlineStr = date('g:i A', $deadlineTs);
                                             $scanMessage = 'Check-in closed. The 15-minute window ended at ' . $deadlineStr . '. Hindi na pwede mag check-in kapag late.';

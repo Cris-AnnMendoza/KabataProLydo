@@ -9,6 +9,17 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
 
 require_once __DIR__ . '/../config.php';
 
+// Clear remember me token from database if user is logged in
+if (!empty($_SESSION['user_id'])) {
+    try {
+        $pdo = db();
+        $pdo->prepare('DELETE FROM youth_remember_tokens WHERE youth_id = ?')
+            ->execute([$_SESSION['user_id']]);
+    } catch (Exception $e) {
+        // Silently continue even if delete fails
+    }
+}
+
 // Clear all session variables
 $_SESSION = [];
 
@@ -16,6 +27,9 @@ $_SESSION = [];
 if (isset($_COOKIE[session_name()])) {
     setcookie(session_name(), '', time() - 3600, '/');
 }
+
+// Destroy remember me cookie
+setcookie('remember_me_token', '', time() - 3600, '/');
 
 // Destroy the session
 session_destroy();

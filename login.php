@@ -4,6 +4,16 @@ ini_set('display_errors', 1);
 
 require_once __DIR__ . '/shared/config.php';
 
+// Check if user has valid remember me token (for persistent login on mobile)
+if (empty($_SESSION['admin_id']) && empty($_SESSION['org_president_id']) && empty($_SESSION['user_id'])) {
+    if (verifyRememberMeToken()) {
+        // Token was valid, session was restored
+        if (!empty($_SESSION['admin_id'])) { header('Location: admin2/dashboard.php'); exit; }
+        if (!empty($_SESSION['org_president_id'])) { header('Location: org-president/dashboard.php'); exit; }
+        if (!empty($_SESSION['user_id'])) { header('Location: shared/youth/dashboard.php'); exit; }
+    }
+}
+
 // Already logged in — redirect to correct dashboard
 if (!empty($_SESSION['admin_id']))         { header('Location: admin2/dashboard.php');        exit; }
 if (!empty($_SESSION['org_president_id'])) { header('Location: org-president/dashboard.php'); exit; }
@@ -45,6 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ];
                 $pdo->prepare('UPDATE admin_users SET last_login = NOW() WHERE id = ?')
                     ->execute([$admin['id']]);
+                
+                // Create remember me token if checkbox is checked
+                if (!empty($_POST['remember_me'])) {
+                    createRememberMeToken('admin', $admin['id']);
+                }
+                
                 header('Location: admin2/dashboard.php');
                 exit;
             }
@@ -70,6 +86,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ->execute([$president['id']]);
                 $pdo->prepare('INSERT INTO organization_president_activity_log (president_id, action, ip_address) VALUES (?, ?, ?)')
                     ->execute([$president['id'], 'Login', $_SERVER['REMOTE_ADDR'] ?? null]);
+                
+                // Create remember me token if checkbox is checked
+                if (!empty($_POST['remember_me'])) {
+                    createRememberMeToken('president', $president['id']);
+                }
+                
                 header('Location: org-president/dashboard.php');
                 exit;
             }
@@ -94,9 +116,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['user_email'] = $user['email'];
                         $_SESSION['login_time'] = time();
                         
-                        // Optional: Extend session if "Remember me" is checked
+                        // Create remember me token if checkbox is checked
                         if (!empty($_POST['remember_me'])) {
-                            setcookie('user_remember', $user['id'], time() + (30 * 24 * 60 * 60), '/', '', false, true);
+                            createRememberMeToken('youth', $user['id']);
                         }
                         
                         header('Location: shared/youth/dashboard.php');
@@ -128,6 +150,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'barangay'  => $admin['barangay'],
                 ];
                 $pdo->prepare('UPDATE admin_users SET last_login = NOW() WHERE id = ?')->execute([$admin['id']]);
+                
+                if (!empty($_POST['remember_me'])) {
+                    createRememberMeToken('admin', $admin['id']);
+                }
+                
                 header('Location: admin2/dashboard.php');
                 exit;
             } else {
@@ -153,6 +180,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ];
                 $pdo->prepare('UPDATE organization_presidents SET last_login = NOW() WHERE id = ?')->execute([$president['id']]);
                 $pdo->prepare('INSERT INTO organization_president_activity_log (president_id, action, ip_address) VALUES (?, ?, ?)')->execute([$president['id'], 'Login', $_SERVER['REMOTE_ADDR'] ?? null]);
+                
+                if (!empty($_POST['remember_me'])) {
+                    createRememberMeToken('president', $president['id']);
+                }
+                
                 header('Location: org-president/dashboard.php');
                 exit;
             } else {
@@ -176,6 +208,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_id']    = $user['id'];
                     $_SESSION['user_name']  = $user['first_name'] . ' ' . $user['last_name'];
                     $_SESSION['user_email'] = $user['email'];
+                    
+                    if (!empty($_POST['remember_me'])) {
+                        createRememberMeToken('youth', $user['id']);
+                    }
+                    
                     header('Location: shared/youth/dashboard.php');
                     exit;
                 }
@@ -323,7 +360,7 @@ body{font-family:'Inter',sans-serif;min-height:100vh;display:grid;grid-template-
 
       <div class="opts">
         <label class="chk-label">
-          <input type="checkbox" name="remember"/> Remember Me
+          <input type="checkbox" name="remember_me"/> Remember Me
         </label>
         <a href="/forgot_password.php" class="forgot">Forgot Password?</a>
       </div>
@@ -353,6 +390,11 @@ function togglePw() {
     ico.className = 'fas fa-eye-slash'; // Show eye with slash when hidden
   }
 }
+
+// Sync login_as dropdown with hidden form field
+document.getElementById('login_as_select').addEventListener('change', function(e) {
+  document.getElementById('login_as').value = e.target.value || 'auto';
+});
 
 // Auto-hide error/warning messages after 5 seconds
 document.addEventListener('DOMContentLoaded', function() {

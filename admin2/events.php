@@ -456,37 +456,37 @@ $eventTypeLabels = [
               <span class="badge gray">Closed</span>
             <?php endif; ?>
           </td>
-          <td style="white-space:nowrap">
+          <td style="white-space:nowrap; display:flex; gap:4px; align-items:center">
             <!-- Show QR Codes (Check-in & Check-out) -->
             <button class="btn-icon teal" title="Show QR Codes" onclick="showQRModal(<?= $ev['id'] ?>, '<?= htmlspecialchars($ev['title']) ?>', '<?= $ev['qr_token'] ?>', <?= $ev['checkin_open'] ? 'true' : 'false' ?>, <?= ($ev['checkout_open'] ?? false) ? 'true' : 'false' ?>)">
               <i class="fas fa-qrcode"></i>
             </button>
             <!-- Toggle check-in -->
-            <form method="POST" style="display:inline">
+            <form method="POST" style="display:contents">
               <input type="hidden" name="action" value="toggle_checkin"/>
               <input type="hidden" name="event_id" value="<?= $ev['id'] ?>"/>
-              <button type="submit" class="btn-icon <?= $ev['checkin_open'] ? 'orange' : 'green' ?>" title="<?= $ev['checkin_open'] ? 'Close Check-in' : 'Open Check-in' ?>">
+              <button type="submit" class="btn-icon <?= $ev['checkin_open'] ? 'orange' : 'green' ?>" title="<?= $ev['checkin_open'] ? 'Close Check-in' : 'Open Check-in' ?>" style="cursor:pointer">
                 <i class="fas fa-<?= $ev['checkin_open'] ? 'lock-open' : 'lock' ?>"></i>
               </button>
             </form>
             <!-- Toggle check-out -->
-            <form method="POST" style="display:inline">
+            <form method="POST" style="display:contents">
               <input type="hidden" name="action" value="toggle_checkout"/>
               <input type="hidden" name="event_id" value="<?= $ev['id'] ?>"/>
-              <button type="submit" class="btn-icon <?= ($ev['checkout_open'] ?? false) ? 'red' : '' ?>" style="<?= !($ev['checkout_open'] ?? false) ? 'color:#f57f17;background:#fff8e1' : '' ?>" title="<?= ($ev['checkout_open'] ?? false) ? 'Close Check-out' : 'Open Check-out Now' ?>">
+              <button type="submit" class="btn-icon <?= ($ev['checkout_open'] ?? false) ? 'red' : '' ?>" style="<?= !($ev['checkout_open'] ?? false) ? 'color:#f57f17;background:#fff8e1' : '' ?>; cursor:pointer" title="<?= ($ev['checkout_open'] ?? false) ? 'Close Check-out' : 'Open Check-out Now' ?>">
                 <i class="fas fa-sign-out-alt"></i>
               </button>
             </form>
             <!-- Edit -->
             <button class="btn-icon edit" title="Edit Event"
-              onclick="openEditEvent(<?= htmlspecialchars(json_encode($ev), ENT_QUOTES) ?>)">
+              onclick="openEditEvent(<?= htmlspecialchars(json_encode($ev), ENT_QUOTES) ?>)" style="cursor:pointer">
               <i class="fas fa-edit"></i>
             </button>
             <!-- Delete -->
-            <form method="POST" style="display:inline" onsubmit="return confirm('Delete this event? All check-ins and certificates will also be deleted.')">
+            <form method="POST" style="display:contents" onsubmit="return confirm('Delete this event? All check-ins and certificates will also be deleted.')">
               <input type="hidden" name="action" value="delete_event"/>
               <input type="hidden" name="event_id" value="<?= $ev['id'] ?>"/>
-              <button type="submit" class="btn-icon red" title="Delete Event"><i class="fas fa-trash"></i></button>
+              <button type="submit" class="btn-icon red" title="Delete Event" style="cursor:pointer"><i class="fas fa-trash"></i></button>
             </form>
           </td>
         </tr>

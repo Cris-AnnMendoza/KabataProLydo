@@ -2,10 +2,11 @@
 // ── Session Configuration ────────────────────────────────
 // Configure sessions before starting
 ini_set('session.gc_maxlifetime', 86400); // 24 hours
-ini_set('session.cookie_lifetime', 0); // Until browser closes (but use remember_me for persistent)
+ini_set('session.cookie_lifetime', 0); // Browser session by default
 ini_set('session.cookie_httponly', 1); // No JS access to cookies
 ini_set('session.cookie_samesite', 'Lax'); // Allow cross-site session (needed for QR links)
 ini_set('session.cookie_secure', 0); // HTTP is fine for localhost, Railway will upgrade to HTTPS
+ini_set('session.use_strict_mode', 1); // Strict session ID mode for security
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
@@ -220,4 +221,123 @@ function sendMail(string $toEmail, string $toName, string $subject, string $html
         error_log('SMTP exception: ' . $e->getMessage());
         return false;
     }
+}
+
+/**
+ * Handle "Remember Me" token for persistent login on mobile
+ * Creates a secure token stored in database that can be used to re-authenticate
+ */
+function createRememberMeToken(string $userType, int $userId, int $expiryDays = 30): string {
+    $token = bin2hex(random_bytes(32));
+    $hashedToken = hash('sha256', $token);
+    $expiryDate = date('Y-m-d H:i:s', time() + ($expiryDays * 24 * 60 * 60));
+    
+    $pdo = db();
+    
+    if ($userType === 'admin') {
+        $pdo->prepare('INSERT INTO admin_remember_tokens (admin_id, token, expires_at, created_at) VALUES (?, ?, ?, NOW())')
+            ->execute([$userId, $hashedToken, $expiryDate]);
+        // Set cookie: remember_me_admin=token|admin|userId
+        setcookie('remember_me_token', "{$token}|admin|{$userId}", time() + ($expiryDays * 24 * 60 * 60), '/', '', false, true);
+    } elseif ($userType === 'president') {
+        $pdo->prepare('INSERT INTO president_remember_tokens (president_id, token, expires_at, created_at) VALUES (?, ?, ?, NOW())')
+            ->execute([$userId, $hashedToken, $expiryDate]);
+        setcookie('remember_me_token', "{$token}|president|{$userId}", time() + ($expiryDays * 24 * 60 * 60), '/', '', false, true);
+    } elseif ($userType === 'youth') {
+        $pdo->prepare('INSERT INTO youth_remember_tokens (youth_id, token, expires_at, created_at) VALUES (?, ?, ?, NOW())')
+            ->execute([$userId, $hashedToken, $expiryDate]);
+        setcookie('remember_me_token', "{$token}|youth|{$userId}", time() + ($expiryDays * 24 * 60 * 60), '/', '', false, true);
+    }
+    
+    return $token;
+}
+
+/**
+ * Verify Remember Me token and restore session if valid
+ */
+function verifyRememberMeToken(): bool {
+    if (empty($_COOKIE['remember_me_token'])) {
+        return false;
+    }
+    
+    $parts = explode('|', $_COOKIE['remember_me_token']);
+    if (count($parts) !== 3) {
+        setcookie('remember_me_token', '', time() - 3600, '/');
+        return false;
+    }
+    
+    list($token, $userType, $userId) = $parts;
+    $hashedToken = hash('sha256', $token);
+    $pdo = db();
+    
+    if ($userType === 'admin') {
+        $stmt = $pdo->prepare('SELECT * FROM admin_remember_tokens WHERE admin_id = ? AND token = ? AND expires_at > NOW() LIMIT 1');
+        $stmt->execute([$userId, $hashedToken]);
+        $record = $stmt->fetch();
+        
+        if ($record) {
+            // Restore session
+            $adminStmt = $pdo->prepare('SELECT * FROM admin_users WHERE id = ? AND is_active = 1');
+            $adminStmt->execute([$userId]);
+            $admin = $adminStmt->fetch();
+            
+            if ($admin) {
+                $_SESSION['admin_id'] = $admin['id'];
+                $_SESSION['admin'] = [
+                    'id'        => $admin['id'],
+                    'full_name' => $admin['full_name'],
+                    'email'     => $admin['email'],
+                    'role'      => $admin['role'],
+                    'barangay'  => $admin['barangay'],
+                ];
+                return true;
+            }
+        }
+    } elseif ($userType === 'president') {
+        $stmt = $pdo->prepare('SELECT * FROM president_remember_tokens WHERE president_id = ? AND token = ? AND expires_at > NOW() LIMIT 1');
+        $stmt->execute([$userId, $hashedToken]);
+        $record = $stmt->fetch();
+        
+        if ($record) {
+            // Restore session
+            $presStmt = $pdo->prepare('SELECT op.*, o.name as organization_name FROM organization_presidents op JOIN organizations o ON o.id = op.organization_id WHERE op.id = ? AND op.is_active = 1');
+            $presStmt->execute([$userId]);
+            $president = $presStmt->fetch();
+            
+            if ($president) {
+                $_SESSION['org_president_id'] = $president['id'];
+                $_SESSION['org_president'] = [
+                    'id'                => $president['id'],
+                    'organization_id'   => $president['organization_id'],
+                    'organization_name' => $president['organization_name'],
+                    'full_name'         => $president['full_name'],
+                    'email'             => $president['email'],
+                    'role'              => 'organization_president'
+                ];
+                return true;
+            }
+        }
+    } elseif ($userType === 'youth') {
+        $stmt = $pdo->prepare('SELECT * FROM youth_remember_tokens WHERE youth_id = ? AND token = ? AND expires_at > NOW() LIMIT 1');
+        $stmt->execute([$userId, $hashedToken]);
+        $record = $stmt->fetch();
+        
+        if ($record) {
+            // Restore session
+            $youthStmt = $pdo->prepare('SELECT * FROM youth_users WHERE id = ? LIMIT 1');
+            $youthStmt->execute([$userId]);
+            $user = $youthStmt->fetch();
+            
+            if ($user && $user['status'] === 'approved') {
+                $_SESSION['user_id']    = $user['id'];
+                $_SESSION['user_name']  = $user['first_name'] . ' ' . $user['last_name'];
+                $_SESSION['user_email'] = $user['email'];
+                return true;
+            }
+        }
+    }
+    
+    // Token invalid or expired - clear cookie
+    setcookie('remember_me_token', '', time() - 3600, '/');
+    return false;
 }
