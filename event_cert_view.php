@@ -94,17 +94,17 @@ body{font-family:'Inter',sans-serif;background:#e8ecf0;display:flex;flex-directi
 .cert-content{position:relative;z-index:3;padding:36px 56px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:space-between}
 .cert-header{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:14px}
 .cert-seal{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.6rem;box-shadow:0 4px 16px rgba(0,0,0,.2);flex-shrink:0;overflow:hidden}
-.cert-org-main{font-size:.95rem;font-weight:800;color:#0d3b6e;letter-spacing:.02em}
-.cert-org-sub{font-size:.72rem;color:#475569;font-weight:500;margin-top:2px}
+.cert-org-main{font-size:1rem;font-weight:900;color:#0d3b6e;letter-spacing:.03em}
+.cert-org-sub{font-size:.75rem;color:#0d3b6e;font-weight:600;margin-top:2px}
 .gold-line{height:2px;background:linear-gradient(90deg,transparent,#c8a84b,#f0d060,#c8a84b,transparent);margin:10px 0;border-radius:2px}
 .thin-line{height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent);margin:8px 0}
-.cert-type{font-size:.76rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#c8a84b;margin-bottom:4px}
-.cert-title{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:#0d3b6e;line-height:1.1;margin-bottom:3px}
+.cert-type{font-size:.8rem;font-weight:800;letter-spacing:.25em;text-transform:uppercase;color:#1565c0;margin-bottom:6px}
+.cert-title{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:#0d3b6e;line-height:1.2;margin-bottom:6px}
 .cert-presented{font-size:.78rem;color:#475569;margin:10px 0 4px;font-style:italic}
-.cert-name{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:#1565c0;border-bottom:2px solid #c8a84b;display:inline-block;padding-bottom:2px;margin-bottom:4px;min-width:320px}
-.cert-barangay{font-size:.75rem;color:#475569}
-.cert-body{font-size:.82rem;color:#475569;line-height:1.6;margin:10px 0;max-width:680px;margin-left:auto;margin-right:auto}
-.cert-event{font-weight:700;color:#0d3b6e;font-size:.88rem}
+.cert-name{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:#1565c0;border-bottom:3px solid #c8a84b;display:inline-block;padding-bottom:4px;margin-bottom:6px;min-width:340px;letter-spacing:.02em}
+.cert-barangay{font-size:.78rem;color:#0d3b6e;font-weight:500}
+.cert-body{font-size:.85rem;color:#0d3b6e;line-height:1.7;margin:12px 0;max-width:700px;margin-left:auto;margin-right:auto;font-weight:500}
+.cert-event{font-weight:800;color:#1565c0;font-size:.9rem}
 
 /* Footer */
 .cert-footer{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;margin-top:14px;align-items:end}
@@ -112,15 +112,15 @@ body{font-family:'Inter',sans-serif;background:#e8ecf0;display:flex;flex-directi
 .cert-sig-line{height:1px;background:#1565c0;margin-bottom:4px}
 .cert-sig-name{font-size:.72rem;font-weight:700;color:#0d3b6e}
 .cert-sig-title{font-size:.62rem;color:#475569;line-height:1.3}
-.cert-info-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;text-align:center}
-.cert-info-label{font-size:.6rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
-.cert-info-val{font-size:.75rem;font-weight:700;color:#0d3b6e;margin-top:2px}
+.cert-info-box{background:#f8fafc;border:2px solid #1565c0;border-radius:8px;padding:10px 14px;text-align:center}
+.cert-info-label{font-size:.65rem;color:#0d3b6e;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.cert-info-val{font-size:.78rem;font-weight:700;color:#0d3b6e;margin-top:3px}
 
 /* Verification QR */
-.verify-box{display:flex;flex-direction:column;align-items:center;gap:3px}
+.verify-box{display:flex;flex-direction:column;align-items:center;gap:6px}
 .verify-box #certQR canvas,
-.verify-box #certQR img{border-radius:6px;border:1px solid #e2e8f0}
-.verify-label{font-size:.55rem;color:#94a3b8;text-align:center;max-width:80px;line-height:1.3}
+.verify-box #certQR img{border-radius:6px;border:2px solid #0d3b6e;padding:4px;background:#fff}
+.verify-label{font-size:.62rem;color:#0d3b6e;text-align:center;max-width:100px;line-height:1.4;font-weight:600}
 
 .corner{position:absolute;width:36px;height:36px;z-index:4}
 .corner-tl{top:22px;left:22px;border-top:3px solid #c8a84b;border-left:3px solid #c8a84b}
@@ -217,11 +217,11 @@ body{font-family:'Inter',sans-serif;background:#e8ecf0;display:flex;flex-directi
       </div>
 
       <!-- Center: cert info + verification QR -->
-      <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
         <div class="cert-info-box">
           <div class="cert-info-label">Certificate No.</div>
-          <div class="cert-info-val" style="font-size:.72rem;font-family:monospace"><?= htmlspecialchars($certNo) ?></div>
-          <div style="margin-top:6px">
+          <div class="cert-info-val" style="font-size:.8rem;font-family:monospace;letter-spacing:.05em"><?= htmlspecialchars($certNo) ?></div>
+          <div style="margin-top:8px">
             <div class="cert-info-label">Date Issued</div>
             <div class="cert-info-val"><?= $issueDate ?></div>
           </div>
@@ -229,7 +229,7 @@ body{font-family:'Inter',sans-serif;background:#e8ecf0;display:flex;flex-directi
         <!-- Verification QR -->
         <div class="verify-box">
           <div id="certQR"></div>
-          <div class="verify-label">Scan to verify authenticity</div>
+          <div class="verify-label">Scan to verify</div>
         </div>
       </div>
 
@@ -248,8 +248,8 @@ body{font-family:'Inter',sans-serif;background:#e8ecf0;display:flex;flex-directi
 // Generate verification QR code
 new QRCode(document.getElementById('certQR'), {
   text: <?= json_encode($verifyUrl) ?>,
-  width: 70,
-  height: 70,
+  width: 110,
+  height: 110,
   colorDark: '#0d3b6e',
   colorLight: '#ffffff',
   correctLevel: QRCode.CorrectLevel.H
