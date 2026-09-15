@@ -5,6 +5,32 @@ requireLogin();
 $pdo   = db();
 $admin = currentAdmin();
 
+// ── Check if tables exist, create if missing ───────────────
+try {
+    $checkTable = $pdo->query("SELECT 1 FROM accreditation_applications LIMIT 1");
+} catch (Exception $e) {
+    // Tables don't exist, create them
+    try {
+        $sql = file_get_contents(__DIR__ . '/../database/missing_tables_mysql.sql');
+        $statements = array_filter(
+            array_map('trim', explode(';', $sql)),
+            fn($s) => !empty($s) && !str_starts_with(trim($s), '--')
+        );
+        foreach ($statements as $stmt) {
+            if (strpos($stmt, 'accreditation') !== false || strpos($stmt, 'assistance') !== false || 
+                strpos($stmt, 'volunteer') !== false || strpos($stmt, 'scholarship') !== false) {
+                $pdo->exec($stmt . ';');
+            }
+        }
+    } catch (Exception $setupError) {
+        die('<div style="padding:20px;background:#ffebee;color:#c62828;border-radius:8px;margin:20px;font-family:sans-serif">
+            <h2>⚠ Database Setup Required</h2>
+            <p>Tables need to be created. Error: ' . htmlspecialchars($setupError->getMessage()) . '</p>
+            <p><a href="create_accreditation_tables.php" style="color:#c62828;font-weight:bold">Create Tables Now →</a></p>
+        </div>');
+    }
+}
+
 // ── Handle POST ───────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
@@ -78,7 +104,7 @@ $params = $filterStatus ? [$filterStatus] : [];
 
 $apps = $pdo->prepare(
     "SELECT a.*, u.first_name, u.last_name,
-     (SELECT COUNT(*) FROM accreditation_documents WHERE organization_id=a.organization_id) as doc_count
+     (SELECT COUNT(*) FROM accreditation_documents WHERE application_id=a.id) as doc_count
      FROM accreditation_applications a
      JOIN youth_users u ON u.id=a.submitted_by
      $where ORDER BY a.created_at DESC"
@@ -173,8 +199,8 @@ $wfStmt = $pdo->prepare('SELECT * FROM accreditation_workflow WHERE application_
 $wfStmt->execute([$viewApp['id']]);
 $workflow = $wfStmt->fetchAll();
 
-$docStmt = $pdo->prepare('SELECT * FROM accreditation_documents WHERE organization_id=?');
-$docStmt->execute([$viewApp['organization_id']]);
+$docStmt = $pdo->prepare('SELECT * FROM accreditation_documents WHERE application_id=?');
+$docStmt->execute([$viewApp['id']]);
 $docs = $docStmt->fetchAll();
 
 [$sc,$bg] = $statusColors[$viewApp['status']] ?? ['#475569','#f1f5f9'];
