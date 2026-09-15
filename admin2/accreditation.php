@@ -78,7 +78,7 @@ $params = $filterStatus ? [$filterStatus] : [];
 
 $apps = $pdo->prepare(
     "SELECT a.*, u.first_name, u.last_name,
-     (SELECT COUNT(*) FROM accreditation_documents WHERE organization_id=a.organization_id) as doc_count
+     (SELECT COUNT(*) FROM accreditation_documents WHERE application_id=a.id) as doc_count
      FROM accreditation_applications a
      JOIN youth_users u ON u.id=a.submitted_by
      $where ORDER BY a.created_at DESC"
@@ -173,8 +173,8 @@ $wfStmt = $pdo->prepare('SELECT * FROM accreditation_workflow WHERE application_
 $wfStmt->execute([$viewApp['id']]);
 $workflow = $wfStmt->fetchAll();
 
-$docStmt = $pdo->prepare('SELECT * FROM accreditation_documents WHERE organization_id=?');
-$docStmt->execute([$viewApp['organization_id']]);
+$docStmt = $pdo->prepare('SELECT * FROM accreditation_documents WHERE application_id=?');
+$docStmt->execute([$viewApp['id']]);
 $docs = $docStmt->fetchAll();
 
 [$sc,$bg] = $statusColors[$viewApp['status']] ?? ['#475569','#f1f5f9'];
