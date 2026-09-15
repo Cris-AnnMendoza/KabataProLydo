@@ -386,26 +386,8 @@
           <div class="form-step active" id="step-1">
             <div class="step-title"><i class="fas fa-user"></i> Personal Information</div>
             
-            <!-- Register As Selection -->
-            <div class="form-group">
-              <label>Register As <span class="req">*</span></label>
-              <div class="register-as-options">
-                <label class="register-as-card">
-                  <input type="radio" name="register_as" value="youth_member" id="r_role_youth" checked />
-                  <div class="register-as-card-inner">
-                    <span class="role-title">Youth Member</span>
-                    <small>Regular youth member registration</small>
-                  </div>
-                </label>
-                <label class="register-as-card">
-                  <input type="radio" name="register_as" value="organization_president" id="r_role_president" />
-                  <div class="register-as-card-inner">
-                    <span class="role-title">President of Organization</span>
-                    <small>Organization president account</small>
-                  </div>
-                </label>
-              </div>
-            </div>
+            <!-- Hidden register_as field - always youth_member since first member becomes president automatically -->
+            <input type="hidden" name="register_as" value="youth_member" />
 
             <div class="form-row-3">
               <div class="form-group">
