@@ -249,9 +249,16 @@ $validFilters = ['pending','approved','rejected','all'];
 if (!in_array($filter, $validFilters)) $filter = 'pending';
 
 if ($tab === 'youth') {
-    $whereStatus = $filter === 'all' ? '' : "WHERE status = '$filter'";
-    $rows = $pdo->query("SELECT id,first_name,last_name,email,gender,barangay,youth_classification,status,created_at
-                         FROM youth_users $whereStatus ORDER BY created_at DESC")->fetchAll();
+    $whereStatus = $filter === 'all' ? '' : "WHERE status = ?";
+    $query = "SELECT id,first_name,last_name,email,gender,barangay,youth_classification,status,created_at
+                         FROM youth_users $whereStatus ORDER BY created_at DESC";
+    if ($filter === 'all') {
+        $rows = $pdo->query($query)->fetchAll();
+    } else {
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([$filter]);
+        $rows = $stmt->fetchAll();
+    }
 } elseif ($tab === 'president') {
     // Organization presidents - use is_active field
     // Note: is_active=0 means pending, there's no separate rejected state
