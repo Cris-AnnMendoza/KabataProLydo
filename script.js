@@ -44,32 +44,19 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
       console.log('Loading organizations...');
       
-      // Load accredited orgs for president dropdown
-      const presResponse = await fetch('get_organizations.php?type=accredited');
-      const presData = await presResponse.json();
-      console.log('President orgs:', presData);
-      
-      if (presData.success && presData.organizations) {
-        const presSelect = document.getElementById('r_organization');
-        if (presSelect) {
-          presData.organizations.forEach(org => {
-            const option = document.createElement('option');
-            option.value = org.id;
-            option.textContent = org.name + (org.adviser_name ? ` (Adviser: ${org.adviser_name})` : '');
-            presSelect.appendChild(option);
-          });
-          console.log('Added', presData.organizations.length, 'accredited orgs to president dropdown');
-        }
-      }
-      
       // Load all active orgs for youth member dropdown
       const youthResponse = await fetch('get_organizations.php?type=all');
       const youthData = await youthResponse.json();
-      console.log('Youth orgs:', youthData);
+      console.log('Youth orgs response:', youthData);
       
       if (youthData.success && youthData.organizations) {
         const youthSelect = document.getElementById('r_org_name');
         if (youthSelect) {
+          // Clear existing options except placeholder
+          while (youthSelect.options.length > 1) {
+            youthSelect.remove(1);
+          }
+          
           youthData.organizations.forEach(org => {
             const option = document.createElement('option');
             option.value = org.id;
@@ -81,19 +68,56 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
       
+      // Load accredited orgs for president dropdown  
+      const presResponse = await fetch('get_organizations.php?type=accredited');
+      const presData = await presResponse.json();
+      console.log('President orgs response:', presData);
+      
+      if (presData.success && presData.organizations) {
+        const presSelect = document.getElementById('r_organization');
+        if (presSelect) {
+          // Clear existing options except placeholder
+          while (presSelect.options.length > 1) {
+            presSelect.remove(1);
+          }
+          
+          presData.organizations.forEach(org => {
+            const option = document.createElement('option');
+            option.value = org.id;
+            option.textContent = org.name + (org.adviser_name ? ` (Adviser: ${org.adviser_name})` : '');
+            presSelect.appendChild(option);
+          });
+          console.log('Added', presData.organizations.length, 'accredited orgs to president dropdown');
+        }
+      }
+      
       organizationsLoaded = true;
     } catch (error) {
       console.error('Error loading organizations:', error);
     }
   }
   
-  // Load organizations immediately on page load
-  loadOrganizations();
-  
-  // Also load on modal open (just in case)
+  // Load organizations when registration modal opens
   registerModal?.addEventListener('click', (e) => {
-    if (e.target === registerModal) return;
+    if (e.target !== registerModal) return; // Only if clicking the modal itself
     loadOrganizations();
+  });
+  
+  // Also load when opening via buttons
+  openRegisterBtn?.addEventListener('click', () => {
+    setTimeout(() => loadOrganizations(), 100);
+  });
+  navRegisterBtn?.addEventListener('click', () => {
+    setTimeout(() => loadOrganizations(), 100);
+  });
+  mobileRegisterBtn?.addEventListener('click', () => {
+    setTimeout(() => loadOrganizations(), 100);
+  });
+  heroRegisterBtn?.addEventListener('click', () => {
+    setTimeout(() => loadOrganizations(), 100);
+  });
+  ctaRegisterBtn?.addEventListener('click', () => {
+    setTimeout(() => loadOrganizations(), 100);
   });
 
   // ─────────────────────────────────────────
