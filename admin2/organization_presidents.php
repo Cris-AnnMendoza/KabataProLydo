@@ -76,7 +76,8 @@ $orgs = $pdo->query('
            u.educational_level,
            u.graduation_year,
            (SELECT COUNT(*) FROM organization_members WHERE organization_id = o.id AND is_active = 1) as member_count,
-           (SELECT COUNT(*) FROM organization_president_history WHERE organization_id = o.id) as president_changes
+           (SELECT COUNT(*) FROM organization_president_history WHERE organization_id = o.id) as president_changes,
+           COALESCE(o.accreditation_status, "pending") as accred_status
     FROM organizations o
     LEFT JOIN youth_users u ON o.president_id = u.id
     ORDER BY o.name
@@ -137,6 +138,7 @@ $upcomingGraduations = array_filter($orgs, fn($o) =>
           <th>Current President</th>
           <th>Since</th>
           <th>Grad Year</th>
+          <th>Accreditation</th>
           <th>Members</th>
           <th>Changes</th>
           <th>Actions</th>
@@ -167,6 +169,21 @@ $upcomingGraduations = array_filter($orgs, fn($o) =>
               <?php else: ?>
                 <span style="color:#a0aec0">—</span>
               <?php endif; ?>
+            </td>
+            <td>
+              <?php
+                $status = $org['accred_status'] ?? 'pending';
+                $colors = [
+                  'accredited' => ['#d4edda', '#155724'],
+                  'pending' => ['#fff3cd', '#856404'],
+                  'rejected' => ['#f8d7da', '#721c24'],
+                  'review' => ['#cfe2ff', '#084298']
+                ];
+                $c = $colors[$status] ?? $colors['pending'];
+              ?>
+              <span style="background:<?=$c[0]?>;color:<?=$c[1]?>;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:600">
+                <?=ucfirst($status)?>
+              </span>
             </td>
             <td><?=$org['member_count']?></td>
             <td><?=$org['president_changes']?></td>
