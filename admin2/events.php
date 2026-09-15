@@ -778,11 +778,10 @@ $eventTypeLabels = [
       </div>
       <div class="form-row-2">
         <div class="fg"><label>Date <span class="req">*</span></label><input type="date" name="event_date" required value="<?=date('Y-m-d')?>"/></div>
-        <div class="fg"><label>Time</label><input type="time" name="event_time"/></div>
       </div>
       <div class="form-row-2">
-        <div class="fg"><label>Event Start Time <span class="req">*</span></label><input type="time" name="event_start_time" required/></div>
-        <div class="fg"><label>Event End Time <span class="req">*</span></label><input type="time" name="event_end_time" required/></div>
+        <div class="fg"><label>Check-in Starts <span class="req">*</span></label><input type="time" name="event_start_time" required title="Youth can check in from this time until 15 minutes later"/></div>
+        <div class="fg"><label>Event Ends <span class="req">*</span></label><input type="time" name="event_end_time" required title="Check-out becomes available at this time"/></div>
       </div>
       <div class="form-row-2">
         <div class="fg"><label>Location</label><input type="text" name="location" placeholder="e.g. Municipal Hall"/></div>
@@ -835,11 +834,10 @@ $eventTypeLabels = [
       </div>
       <div class="form-row-2">
         <div class="fg"><label>Date <span class="req">*</span></label><input type="date" name="event_date" id="edit_event_date" required/></div>
-        <div class="fg"><label>Time</label><input type="time" name="event_time" id="edit_event_time"/></div>
       </div>
       <div class="form-row-2">
-        <div class="fg"><label>Event Start Time <span class="req">*</span></label><input type="time" name="event_start_time" id="edit_event_start_time" required/></div>
-        <div class="fg"><label>Event End Time <span class="req">*</span></label><input type="time" name="event_end_time" id="edit_event_end_time" required/></div>
+        <div class="fg"><label>Check-in Starts <span class="req">*</span></label><input type="time" name="event_start_time" id="edit_event_start_time" required title="Youth can check in from this time until 15 minutes later"/></div>
+        <div class="fg"><label>Event Ends <span class="req">*</span></label><input type="time" name="event_end_time" id="edit_event_end_time" required title="Check-out becomes available at this time"/></div>
       </div>
       <div class="form-row-2">
         <div class="fg"><label>Location</label><input type="text" name="location" id="edit_location" placeholder="e.g. Municipal Hall"/></div>
@@ -1383,7 +1381,6 @@ function openEditEvent(ev) {
   document.getElementById('edit_title').value           = ev.title || '';
   document.getElementById('edit_event_type').value      = ev.event_type || 'official_event';
   document.getElementById('edit_event_date').value      = ev.event_date || '';
-  document.getElementById('edit_event_time').value      = ev.event_time || '';
   document.getElementById('edit_event_start_time').value = ev.event_start_time || '';
   document.getElementById('edit_event_end_time').value   = ev.event_end_time || '';
   document.getElementById('edit_location').value        = ev.location || '';
