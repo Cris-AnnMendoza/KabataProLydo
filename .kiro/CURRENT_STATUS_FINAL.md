@@ -88,7 +88,6 @@
 1. Go to Railway Dashboard
 2. Find your project and environment variables
 3. **RENAME** `AI_API_KEY` to `GROQ_API_KEY` (keep the same value)
-   - Current value: `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`
    - Do NOT change the value, only rename the variable name
 
 **Why?**: 
@@ -158,7 +157,7 @@
 
 1. **Environment Variables on Railway** (CRITICAL):
    - Rename `AI_API_KEY` to `GROQ_API_KEY` 
-   - Keep value: `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`
+   - Keep the same value (already set on Railway)
 
 2. **Database Migrations**:
    - Run all `.sql` files in `database/` folder if setting up fresh
