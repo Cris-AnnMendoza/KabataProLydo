@@ -100,9 +100,35 @@ if ($registerAs === 'organization_president') {
         exit;
     }
 } else {
-    // Youth Member with optional organization affiliation
-    if (!empty($_POST['youth_organization_id'])) {
-        $youthOrganizationId = (int)$_POST['youth_organization_id'];
+    // Youth Member - MUST have an organization
+    // Option 1: Select from existing accredited organizations
+    if (!empty($_POST['organization_id'])) {
+        $youthOrganizationId = (int)$_POST['organization_id'];
+        
+        // Verify organization exists
+        $checkOrg = $pdo->prepare('SELECT id FROM organizations WHERE id = ? LIMIT 1');
+        $checkOrg->execute([$youthOrganizationId]);
+        if (!$checkOrg->fetch()) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => 'Selected organization not found.']);
+            exit;
+        }
+    }
+    // Option 2: Create new organization (pending accreditation)
+    elseif (!empty($_POST['new_organization_name'])) {
+        $newOrgName = trim($_POST['new_organization_name']);
+        $newOrgCategory = trim($_POST['new_organization_category'] ?? 'Other');
+        $newOrgBarangay = trim($_POST['barangay']);
+        
+        // Insert new organization in pending status
+        $insertOrg = $pdo->prepare('INSERT INTO organizations (name, category, barangay, accreditation_status, created_by) VALUES (?, ?, ?, ?, ?)');
+        $insertOrg->execute([$newOrgName, $newOrgCategory, $newOrgBarangay, 'pending', 0]);
+        $youthOrganizationId = $pdo->lastInsertId();
+    }
+    else {
+        http_response_code(422);
+        echo json_encode(['success' => false, 'message' => 'Please select or create an organization.']);
+        exit;
     }
 }
 
@@ -168,6 +194,14 @@ $pdo->prepare($sql)->execute([
 
 $userId = $pdo->lastInsertId();
 
+// ── Associate youth with organization ──────────────────────
+if ($youthOrganizationId) {
+    $memberSql = 'INSERT INTO organization_members (organization_id, user_id, role, joined_at, is_active) 
+                  VALUES (?, ?, ?, NOW(), 1) 
+                  ON DUPLICATE KEY UPDATE is_active = 1';
+    $pdo->prepare($memberSql)->execute([$youthOrganizationId, $userId, 'Member']);
+}
+
 // ── Create Organization President Record ──────────────────
 if ($registerAs === 'organization_president' && $organizationId) {
     $fullName = trim($_POST['first_name']) . ' ' . 
@@ -197,6 +231,17 @@ if ($registerAs === 'organization_president' && $organizationId) {
     $updateOrg->execute([$userId, $organizationId]);
     
     $message = 'Organization President registration submitted! Your account is pending approval. You will be notified once approved.';
+} else if ($youthOrganizationId) {
+    // For youth members with pending org, provide next steps
+    $org = $pdo->prepare('SELECT accreditation_status FROM organizations WHERE id = ?');
+    $org->execute([$youthOrganizationId]);
+    $orgData = $org->fetch();
+    
+    if ($orgData['accreditation_status'] === 'pending') {
+        $message = 'Registration submitted! Your account is pending approval. Your organization is also pending accreditation. Next Steps: 1) You will receive an email with instructions to submit your organization\'s required documents (Constitution, Officers List, Financial Report, etc.) to the LYDO Office. 2) Please gather these documents from your organization officers and upload them through your dashboard. 3) The LYDO Admin will review and approve your organization. You will be notified of the status.';
+    } else {
+        $message = 'Registration submitted! Your account is pending approval by the LYDO office. You will be notified once approved.';
+    }
 } else {
     $message = 'Registration submitted! Your account is pending approval by the LYDO office. You will be notified once approved.';
 }
