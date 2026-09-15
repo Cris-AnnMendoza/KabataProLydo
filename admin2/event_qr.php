@@ -618,7 +618,7 @@ function updateCountdown() {
     // Time to refresh QR code - fetch new URL from server
     countdown = 30;
     
-    fetch(`admin2/event_qr_ajax.php?id=${eventId}`)
+    fetch(`./event_qr_ajax.php?id=${eventId}`)
       .then(r => r.json())
       .then(data => {
         if (data.success) {
