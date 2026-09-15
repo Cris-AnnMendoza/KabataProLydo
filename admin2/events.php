@@ -236,7 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cur = $pdo->prepare('SELECT checkin_open FROM events WHERE id=?');
         $cur->execute([$eid]);
         $row = $cur->fetch();
-        $newState = $row ? (!$row['checkin_open'] ? TRUE : FALSE) : TRUE;
+        $newState = $row ? ((int)$row['checkin_open'] === 0 ? 1 : 0) : 1;
         $pdo->prepare('UPDATE events SET checkin_open=? WHERE id=?')->execute([$newState, $eid]);
         flash('success', 'Check-in ' . ($newState ? 'opened' : 'closed') . '.');
         header('Location: events.php'); exit;
@@ -247,7 +247,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cur = $pdo->prepare('SELECT checkout_open FROM events WHERE id=?');
         $cur->execute([$eid]);
         $row = $cur->fetch();
-        $newState = $row ? (!$row['checkout_open'] ? TRUE : FALSE) : TRUE;
+        $newState = $row ? ((int)$row['checkout_open'] === 0 ? 1 : 0) : 1;
         $pdo->prepare('UPDATE events SET checkout_open=? WHERE id=?')->execute([$newState, $eid]);
         flash('success', 'Check-out ' . ($newState ? 'opened' : 'closed') . '.');
         header('Location: events.php'); exit;
