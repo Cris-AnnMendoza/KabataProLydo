@@ -683,11 +683,19 @@ async function sendChatMessage() {
   input.value = '';
   messages.scrollTop = messages.scrollHeight;
   
-  // Send to server with hardcoded response for now
-  const botMsg = document.createElement('div');
-  botMsg.style.cssText = 'display:flex;gap:8px';
+  // Send to server
+  try {
+    const response = await fetch('wellbeing_popup.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: message })
+    });
+    const data = await response.json();
+    
+    const botMsg = document.createElement('div');
+    botMsg.style.cssText = 'display:flex;gap:8px';
     botMsg.innerHTML = `
-      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1565c0,#1e88e5);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.75rem;flex-shrink:0">
+      <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1565c0,#1e88e5);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.75rem">
         <i class="fas fa-brain"></i>
       </div>
       <div style="max-width:75%;padding:8px 12px;border-radius:10px;background:#fff;color:#1e293b;border:1px solid #e2e8f0;font-size:0.8rem;line-height:1.5">${(data.reply || 'I am having trouble connecting. Please try again.').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}</div>
