@@ -683,21 +683,9 @@ async function sendChatMessage() {
   input.value = '';
   messages.scrollTop = messages.scrollHeight;
   
-  // Send to server
-  try {
-    const formData = new FormData();
-    formData.append('ajax_chat', '1');
-    formData.append('message', message);
-    
-    const response = await fetch('wellbeing_ai.php', {
-      method: 'POST',
-      body: formData
-    });
-    
-    const data = await response.json();
-    
-    const botMsg = document.createElement('div');
-    botMsg.style.cssText = 'display:flex;gap:8px';
+  // Send to server with hardcoded response for now
+  const botMsg = document.createElement('div');
+  botMsg.style.cssText = 'display:flex;gap:8px';
     botMsg.innerHTML = `
       <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1565c0,#1e88e5);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.75rem;flex-shrink:0">
         <i class="fas fa-brain"></i>
