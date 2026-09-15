@@ -2,6 +2,13 @@
 require_once 'config.php';
 require_once '../shared/config.php';
 
+// Auto-run on page load if auto=1 in query string
+$autoRun = isset($_GET['auto']) && $_GET['auto'] === '1';
+if (!$autoRun) {
+    // Show redirect with auto=1
+    echo '<script>window.location = "?auto=1";</script>';
+}
+
 $pdo = db();
 
 // Check if Cris-Ann already exists
