@@ -62,6 +62,7 @@ $secondsLeft = 30 - (time() % 30);
 
 echo json_encode([
     'success' => true,
+    'checkin_url' => $checkinUrl,
     'qr_url' => $qrUrl,
     'seconds_left' => $secondsLeft
 ]);

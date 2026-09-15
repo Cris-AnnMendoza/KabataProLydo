@@ -267,6 +267,7 @@ $eventDate = date('F j, Y', strtotime($event['event_date']));
 <title>Event QR Code – <?= htmlspecialchars($event['title']) ?></title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <link rel="stylesheet" href="admin.css"/>
 <style>
 .qr-section{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start}
@@ -384,7 +385,7 @@ $eventDate = date('F j, Y', strtotime($event['event_date']));
       <?= $event['checkin_open'] ? 'Check-in Open' : 'Check-in Closed' ?>
     </div>
     <div id="qrcode">
-      <img id="qrcodeImg" src="<?= htmlspecialchars($qrImageUrl) ?>" alt="QR Code" style="border-radius:8px;width:200px;height:200px;image-rendering:pixelated">
+      <div id="qrcodeCanvas" style="display:flex;justify-content:center;background:#fff;border-radius:8px;padding:10px;width:220px;height:220px;align-items:center"></div>
     </div>
     <div style="font-size:.82rem;font-weight:600;color:#0d3b6e;margin-bottom:6px">Scan to Check In</div>
 
@@ -525,7 +526,7 @@ $eventDate = date('F j, Y', strtotime($event['event_date']));
   <h2><?= htmlspecialchars($event['title']) ?></h2>
   <p><?= $eventDate ?><?= $event['location'] ? ' · ' . htmlspecialchars($event['location']) : '' ?></p>
   <div id="qrcode-fs">
-    <img id="qrcodeImg-fs" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=<?= urlencode($rotatingQRUrl) ?>" alt="QR Code" style="border-radius:12px;width:320px;height:320px;image-rendering:pixelated;animation:pulse 2s infinite">
+    <div id="qrcodeCanvas-fs" style="display:flex;justify-content:center;background:#fff;border-radius:12px;padding:12px;width:344px;height:344px;align-items:center"></div>
   </div>
   <p style="font-size:1.1rem;font-weight:700">Scan to Check In</p>
   
@@ -606,6 +607,25 @@ $eventDate = date('F j, Y', strtotime($event['event_date']));
 <script>
 const eventId = <?= $eventId ?>;
 let countdown = <?= $secsLeft ?>;
+let currentUrl = '<?= addslashes($rotatingQRUrl) ?>';
+
+// Generate QR code on a canvas
+function generateQRCode(url, containerId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = ''; // Clear old QR
+  new QRCode(container, {
+    text: url,
+    width: 300,
+    height: 300,
+    colorDark: '#000000',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+}
+
+// Initialize QR codes
+generateQRCode(currentUrl, 'qrcodeCanvas');
+generateQRCode(currentUrl, 'qrcodeCanvas-fs');
 
 // Update countdown timer and refresh QR every 30 seconds
 function updateCountdown() {
@@ -615,18 +635,16 @@ function updateCountdown() {
   countdown--;
   
   if (countdown < 0) {
-    // Time to refresh QR code - fetch new URL from server
     countdown = 30;
-    
+    // Fetch new rotating token
     fetch(`./event_qr_ajax.php?id=${eventId}`)
       .then(r => r.json())
       .then(data => {
         if (data.success) {
-          // Update both QR images with new URLs
-          document.getElementById('qrcodeImg').src = data.qr_url.replace('300x300', '200x200') + '&t=' + Date.now();
-          document.getElementById('qrcodeImg-fs').src = data.qr_url + '&t=' + Date.now();
-          
-          // Update countdown with new seconds
+          currentUrl = data.checkin_url;
+          // Regenerate both QR codes with new URL
+          generateQRCode(currentUrl, 'qrcodeCanvas');
+          generateQRCode(currentUrl, 'qrcodeCanvas-fs');
           countdown = data.seconds_left;
           document.getElementById('countdown').textContent = countdown;
           document.getElementById('countdownFs').textContent = countdown;
