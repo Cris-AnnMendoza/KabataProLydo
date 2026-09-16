@@ -107,7 +107,7 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
 .cert-event{font-weight:900;color:#0d3b6e;font-size:.98rem;text-transform:uppercase;letter-spacing:.02em}
 
 /* Footer */
-.cert-footer{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;margin-top:16px;align-items:flex-end}
+.cert-footer{display:grid;grid-template-columns:1fr 180px 1fr;gap:20px;margin-top:16px;align-items:flex-end}
 .cert-sig{text-align:center;font-family:'Inter',sans-serif}
 .cert-sig-line{height:3px;background:#0d3b6e;margin-bottom:6px;width:160px;margin-left:auto;margin-right:auto}
 .cert-sig-name{font-size:.76rem;font-weight:900;color:#0d3b6e;letter-spacing:.02em;text-transform:uppercase}
@@ -117,10 +117,11 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
 .cert-info-val{font-size:.85rem;font-weight:900;color:#0d3b6e;margin-top:5px;font-family:'Courier New',monospace;letter-spacing:.08em}
 
 /* Verification QR */
-.verify-box{display:flex;flex-direction:column;align-items:center;gap:12px}
+.verify-box{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:140px}
+.verify-box #certQR{display:flex !important;align-items:center;justify-content:center;width:140px;height:140px}
 .verify-box #certQR canvas,
-.verify-box #certQR img{max-width:160px;max-height:160px;border-radius:6px;border:4px solid #0d3b6e;padding:8px;background:#fff;box-shadow:0 4px 12px rgba(13,59,110,.15)}
-.verify-label{font-size:.7rem;color:#0d3b6e;text-align:center;max-width:130px;line-height:1.6;font-weight:800;font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:.06em}
+.verify-box #certQR img{width:140px !important;height:140px !important;border-radius:6px;border:3px solid #0d3b6e;padding:6px;background:#fff;box-shadow:0 4px 12px rgba(13,59,110,.15);display:block !important}
+.verify-label{font-size:.65rem;color:#0d3b6e;text-align:center;max-width:140px;line-height:1.5;font-weight:800;font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:.05em}
 
 .corner{position:absolute;width:40px;height:40px;z-index:4}
 .corner-tl{top:24px;left:24px;border-top:4px solid #0d3b6e;border-left:4px solid #0d3b6e}
@@ -136,19 +137,21 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
   .cert-footer{grid-template-columns:1fr;gap:12px}
   .cert-header{flex-direction:column;gap:12px}
   .verify-box{gap:8px}
+  .verify-box #certQR{width:120px;height:120px}
   .verify-box #certQR canvas,
-  .verify-box #certQR img{width:130px!important;height:130px!important;border-width:2px}
+  .verify-box #certQR img{width:120px!important;height:120px!important;border-width:2px}
+  .verify-label{max-width:120px;font-size:.62rem}
   .cert-sig-line{width:100px}
   .cert-name{min-width:auto}
   .divider{width:120px}
 }
 @media print{
-  html,body{width:279mm;height:216mm;margin:0;padding:0;background:#fff}
-  body{padding:0;display:block}
+  html,body{width:279mm;height:216mm;margin:0;padding:0;background:#fff;overflow:visible}
+  body{padding:0;display:block;overflow:visible}
   .print-bar{display:none!important}
-  .cert-wrap{box-shadow:none;width:279mm;height:216mm;max-width:none;page-break-after:avoid;page-break-inside:avoid;background:#fef8f3;min-height:unset;aspect-ratio:unset}
-  .cert-content{page-break-inside:avoid}
-  @page{size:279mm 216mm landscape;margin:0}
+  .cert-wrap{box-shadow:none;width:279mm;height:auto;min-height:216mm;max-width:none;page-break-after:avoid;page-break-inside:avoid;background:#fef8f3;margin:0;overflow:visible}
+  .cert-content{page-break-inside:avoid;overflow:visible}
+  @page{size:279mm 216mm landscape;margin:0;overflow:visible}
 }
 </style>
 </head>
