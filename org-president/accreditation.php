@@ -33,86 +33,107 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $contactEmail = trim($_POST['contact_email'] ?? '');
         $contactPhone = trim($_POST['contact_phone'] ?? '');
 
+        // Validation
         if (!$orgName || !$category || !$contactPerson || !$contactEmail || !$contactPhone) {
             $_SESSION['flash_error'] = 'All required fields must be filled.';
             header('Location: accreditation.php');
             exit;
         }
 
-        // Add columns if they don't exist
+        if (!filter_var($contactEmail, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['flash_error'] = 'Invalid email address.';
+            header('Location: accreditation.php');
+            exit;
+        }
+
+        // Verify president owns this organization
+        if ($org['id'] !== $orgId) {
+            $_SESSION['flash_error'] = 'Unauthorized: You can only submit accreditation for your own organization.';
+            header('Location: accreditation.php');
+            exit;
+        }
+
         try {
-            $pdo->exec("ALTER TABLE organizations ADD COLUMN IF NOT EXISTS contact_person VARCHAR(255) DEFAULT NULL");
-            $pdo->exec("ALTER TABLE organizations ADD COLUMN IF NOT EXISTS contact_email VARCHAR(255) DEFAULT NULL");
-            $pdo->exec("ALTER TABLE organizations ADD COLUMN IF NOT EXISTS contact_phone VARCHAR(50) DEFAULT NULL");
-            
-            // Make submitted_by nullable for president submissions
-            $pdo->exec("ALTER TABLE accreditation_applications MODIFY COLUMN submitted_by INT UNSIGNED DEFAULT NULL");
-        } catch (PDOException $e) {
-            // Columns might already exist, continue
-        }
+            // Update organization info
+            $pdo->prepare('UPDATE organizations SET name=?, category=?, barangay=?, contact_person=?, contact_email=?, contact_phone=? WHERE id=?')
+                ->execute([$orgName, $category, $barangay, $contactPerson, $contactEmail, $contactPhone, $orgId]);
 
-        // Update organization info
-        $pdo->prepare('UPDATE organizations SET name=?, category=?, barangay=?, contact_person=?, contact_email=?, contact_phone=? WHERE id=?')
-            ->execute([$orgName, $category, $barangay, $contactPerson, $contactEmail, $contactPhone, $orgId]);
+            // Check if application exists
+            $checkApp = $pdo->prepare('SELECT id, status FROM accreditation_applications WHERE organization_id = ? ORDER BY created_at DESC LIMIT 1');
+            $checkApp->execute([$orgId]);
+            $existingApp = $checkApp->fetch();
 
-        // Create accreditation application (check if exists first)
-        $checkApp = $pdo->prepare('SELECT id FROM accreditation_applications WHERE organization_id = ? ORDER BY created_at DESC LIMIT 1');
-        $checkApp->execute([$orgId]);
-        $existingApp = $checkApp->fetch();
+            if ($existingApp) {
+                $appId = (int)$existingApp['id'];
+                // Only allow updates if not already approved
+                if ($existingApp['status'] !== 'approved') {
+                    $pdo->prepare('UPDATE accreditation_applications SET organization_name=?, category=?, barangay=?, contact_person=?, contact_email=?, contact_phone=?, updated_at=CURRENT_TIMESTAMP WHERE id=?')
+                        ->execute([$orgName, $category, $barangay, $contactPerson, $contactEmail, $contactPhone, $appId]);
+                }
+            } else {
+                // Create new application with organization_id in submission
+                $pdo->prepare('INSERT INTO accreditation_applications (organization_id, organization_name, category, barangay, contact_person, contact_email, contact_phone, submitted_by, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, "submitted", CURRENT_TIMESTAMP)')
+                    ->execute([$orgId, $orgName, $category, $barangay, $contactPerson, $contactEmail, $contactPhone, $_SESSION['org_president_id']]);
+                
+                $appId = (int)$pdo->lastInsertId();
 
-        if ($existingApp) {
-            $appId = $existingApp['id'];
-            // Update existing application
-            $pdo->prepare('UPDATE accreditation_applications SET organization_name=?, category=?, barangay=?, contact_person=?, contact_email=?, contact_phone=?, updated_at=CURRENT_TIMESTAMP WHERE id=?')
-                ->execute([$orgName, $category, $barangay, $contactPerson, $contactEmail, $contactPhone, $appId]);
-        } else {
-            // Create new application
-            $pdo->prepare('INSERT INTO accreditation_applications (organization_id, organization_name, category, barangay, contact_person, contact_email, contact_phone, submitted_by, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, "submitted", CURRENT_TIMESTAMP)')
-                ->execute([$orgId, $orgName, $category, $barangay, $contactPerson, $contactEmail, $contactPhone]);
-            
-            $appId = (int)$pdo->lastInsertId();
-
-            // Create workflow steps
-            $steps = ['Document Verification', 'Background Check', 'Field Inspection', 'Board Review', 'Final Approval'];
-            foreach ($steps as $step) {
-                $pdo->prepare('INSERT INTO accreditation_workflow (application_id, step, status) VALUES (?, ?, "pending")')
-                    ->execute([$appId, $step]);
-            }
-        }
-
-        // Handle document uploads
-        $docTypes = ['letter_of_intent', 'nyc_form', 'officers_list', 'constitution', 'lydo_form'];
-        $uploadDir = __DIR__ . '/../shared/uploads/accreditation/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-
-        // Ensure accreditation_documents table has correct columns
-        try {
-            $pdo->exec("ALTER TABLE accreditation_documents ADD COLUMN IF NOT EXISTS organization_id INT UNSIGNED DEFAULT NULL");
-            $pdo->exec("ALTER TABLE accreditation_documents ADD COLUMN IF NOT EXISTS doc_type VARCHAR(50) DEFAULT NULL");
-            $pdo->exec("ALTER TABLE accreditation_documents ADD COLUMN IF NOT EXISTS file_path VARCHAR(255) DEFAULT NULL");
-            $pdo->exec("ALTER TABLE accreditation_documents ADD COLUMN IF NOT EXISTS original_name VARCHAR(255) DEFAULT NULL");
-            $pdo->exec("ALTER TABLE accreditation_documents ADD COLUMN IF NOT EXISTS file_size INT DEFAULT NULL");
-            $pdo->exec("ALTER TABLE accreditation_documents ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending'");
-        } catch (PDOException $e) {
-            // Columns might already exist
-        }
-
-        foreach ($docTypes as $docType) {
-            if (isset($_FILES[$docType]) && $_FILES[$docType]['error'] === UPLOAD_ERR_OK) {
-                $file = $_FILES[$docType];
-                $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-                $filename = $docType . '_' . $orgId . '_' . time() . '.' . $ext;
-                $filepath = $uploadDir . $filename;
-
-                if (move_uploaded_file($file['tmp_name'], $filepath)) {
-                    // Insert or update if duplicate
-                    $pdo->prepare('INSERT INTO accreditation_documents (organization_id, doc_type, file_path, original_name, file_size, status, uploaded_at) VALUES (?, ?, ?, ?, ?, "pending", CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE file_path=VALUES(file_path), original_name=VALUES(original_name), file_size=VALUES(file_size), status="pending", uploaded_at=CURRENT_TIMESTAMP')
-                        ->execute([$orgId, $docType, $filename, $file['name'], $file['size']]);
+                // Create workflow steps
+                $steps = ['Document Verification', 'Background Check', 'Field Inspection', 'Board Review', 'Final Approval'];
+                foreach ($steps as $step) {
+                    $pdo->prepare('INSERT INTO accreditation_workflow (application_id, step, status) VALUES (?, ?, "pending")')
+                        ->execute([$appId, $step]);
                 }
             }
+
+            // Handle document uploads
+            $docTypes = ['letter_of_intent', 'nyc_form', 'officers_list', 'constitution', 'lydo_form'];
+            $uploadDir = __DIR__ . '/../shared/uploads/accreditation/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+            $allowedExts = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+            $maxFileSize = 5 * 1024 * 1024; // 5MB
+
+            foreach ($docTypes as $docType) {
+                if (isset($_FILES[$docType]) && $_FILES[$docType]['error'] === UPLOAD_ERR_OK) {
+                    $file = $_FILES[$docType];
+                    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+                    // Validate file
+                    if (!in_array($ext, $allowedExts)) {
+                        $_SESSION['flash_error'] = "Invalid file type for $docType. Allowed: PDF, DOC, DOCX, JPG, PNG";
+                        header('Location: accreditation.php');
+                        exit;
+                    }
+
+                    if ($file['size'] > $maxFileSize) {
+                        $_SESSION['flash_error'] = "File size for $docType exceeds 5MB limit.";
+                        header('Location: accreditation.php');
+                        exit;
+                    }
+
+                    // Generate unique filename with application ID
+                    $timestamp = time();
+                    $random = bin2hex(random_bytes(4));
+                    $filename = "{$docType}_{$appId}_{$timestamp}_{$random}.{$ext}";
+                    $filepath = $uploadDir . $filename;
+
+                    if (move_uploaded_file($file['tmp_name'], $filepath)) {
+                        // Insert or update document record
+                        $pdo->prepare('INSERT INTO accreditation_documents (application_id, organization_id, doc_type, file_path, original_name, file_size, status, uploaded_at) VALUES (?, ?, ?, ?, ?, ?, "pending", CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE file_path=?, original_name=?, file_size=?, status="pending", uploaded_at=CURRENT_TIMESTAMP')
+                            ->execute([$appId, $orgId, $docType, $filename, $file['name'], $file['size'], $filename, $file['name'], $file['size']]);
+                    } else {
+                        $_SESSION['flash_error'] = "Failed to upload file: $docType. Please try again.";
+                        header('Location: accreditation.php');
+                        exit;
+                    }
+                }
+            }
+
+            $_SESSION['flash_success'] = "Accreditation application submitted successfully! Application #$appId";
+        } catch (Exception $e) {
+            $_SESSION['flash_error'] = "Error submitting application: " . $e->getMessage();
         }
 
-        $_SESSION['flash_success'] = 'Accreditation application submitted successfully! Application #' . $appId;
         header('Location: accreditation.php');
         exit;
     }

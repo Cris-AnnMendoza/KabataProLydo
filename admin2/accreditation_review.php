@@ -8,75 +8,100 @@ $admin = currentAdmin();
 // ── Handle POST actions ───────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
+    $appId = (int)($_POST['app_id'] ?? 0);
+
+    if (!$appId) {
+        flash('error', 'Invalid application ID.');
+        header('Location: accreditation_review.php');
+        exit;
+    }
+
+    // Verify application exists
+    $verifyStmt = $pdo->prepare('SELECT id, organization_id FROM accreditation_applications WHERE id = ? LIMIT 1');
+    $verifyStmt->execute([$appId]);
+    $app = $verifyStmt->fetch();
+    if (!$app) {
+        flash('error', 'Application not found.');
+        header('Location: accreditation_review.php');
+        exit;
+    }
 
     if ($action === 'approve') {
-        $orgId = (int)$_POST['organization_id'];
-        $pdo->prepare('UPDATE organizations SET accreditation_status = ? WHERE id = ?')->execute(['active', $orgId]);
-        $pdo->prepare('UPDATE accreditation_submissions SET status = ?, reviewed_by = ?, review_date = NOW() WHERE organization_id = ?')
-            ->execute(['approved', $admin['id'], $orgId]);
-        flash('success', 'Organization accredited successfully.');
+        $certNo    = 'LYDO-' . date('Y') . '-' . str_pad($appId, 4, '0', STR_PAD_LEFT);
+        $validUntil= date('Y-m-d', strtotime('+1 year'));
+        $pdo->prepare('UPDATE accreditation_applications SET status="approved", certificate_no=?, valid_until=?, reviewed_by=?, reviewed_at=CURRENT_TIMESTAMP WHERE id=?')
+            ->execute([$certNo, $validUntil, $admin['id'], $appId]);
+        
+        // Update organization status
+        $pdo->prepare('UPDATE organizations SET accreditation_status="active" WHERE id=?')
+            ->execute([$app['organization_id']]);
+        
+        flash('success', "Application approved. Certificate: $certNo");
         header('Location: accreditation_review.php');
         exit;
     }
 
     if ($action === 'reject') {
-        $orgId = (int)$_POST['organization_id'];
-        $comments = trim($_POST['review_comments'] ?? '');
-        $pdo->prepare('UPDATE organizations SET accreditation_status = ? WHERE id = ?')->execute(['rejected', $orgId]);
-        $pdo->prepare('UPDATE accreditation_submissions SET status = ?, reviewed_by = ?, review_date = NOW(), review_comments = ? WHERE organization_id = ?')
-            ->execute(['rejected', $admin['id'], $comments, $orgId]);
-        flash('success', 'Organization accreditation rejected.');
+        $reason = trim($_POST['rejection_reason'] ?? '');
+        if (!$reason) {
+            flash('error', 'Rejection reason is required.');
+            header('Location: accreditation_review.php');
+            exit;
+        }
+        $pdo->prepare('UPDATE accreditation_applications SET status="rejected", rejection_reason=?, reviewed_by=?, reviewed_at=CURRENT_TIMESTAMP WHERE id=?')
+            ->execute([$reason, $admin['id'], $appId]);
+        
+        // Update organization status
+        $pdo->prepare('UPDATE organizations SET accreditation_status="rejected" WHERE id=?')
+            ->execute([$app['organization_id']]);
+        
+        flash('success', 'Application rejected.');
         header('Location: accreditation_review.php');
         exit;
     }
 
     if ($action === 'request_revision') {
-        $orgId = (int)$_POST['organization_id'];
-        $comments = trim($_POST['review_comments'] ?? '');
-        $pdo->prepare('UPDATE organizations SET accreditation_status = ? WHERE id = ?')->execute(['needs_revision', $orgId]);
-        $pdo->prepare('UPDATE accreditation_submissions SET status = ?, reviewed_by = ?, review_date = NOW(), review_comments = ? WHERE organization_id = ?')
-            ->execute(['needs_revision', $admin['id'], $comments, $orgId]);
+        $reason = trim($_POST['revision_reason'] ?? '');
+        if (!$reason) {
+            flash('error', 'Revision reason is required.');
+            header('Location: accreditation_review.php');
+            exit;
+        }
+        $pdo->prepare('UPDATE accreditation_applications SET status="needs_revision", reviewed_by=?, reviewed_at=CURRENT_TIMESTAMP WHERE id=?')
+            ->execute([$admin['id'], $appId]);
+        
         flash('success', 'Revision request sent to organization.');
         header('Location: accreditation_review.php');
         exit;
     }
 }
 
-// Get all pending organizations with submissions
-$pendingOrgs = $pdo->query('
-    SELECT o.*, 
-           COALESCE(s.status, "not_submitted") as submission_status,
-           s.submission_date,
-           s.review_comments,
-           (SELECT COUNT(*) FROM organization_accreditation_files WHERE organization_id = o.id) as file_count,
-           (SELECT COUNT(*) FROM organization_members WHERE organization_id = o.id AND is_active = 1) as member_count
-    FROM organizations o
-    LEFT JOIN accreditation_submissions s ON o.id = s.organization_id
-    WHERE o.accreditation_status IN ("pending", "needs_revision")
-    ORDER BY s.submission_date DESC, o.created_at DESC
+// Get all pending applications
+$pendingApps = $pdo->query('
+    SELECT a.*, o.name as org_name, o.barangay, o.category,
+           (SELECT COUNT(*) FROM organization_members WHERE organization_id = a.organization_id AND is_active = 1) as member_count,
+           (SELECT COUNT(*) FROM accreditation_documents WHERE application_id = a.id) as doc_count
+    FROM accreditation_applications a
+    LEFT JOIN organizations o ON o.id = a.organization_id
+    WHERE a.status IN ("submitted", "under_review")
+    ORDER BY a.created_at ASC
 ')->fetchAll();
 
-$approvedOrgs = $pdo->query('
-    SELECT o.*, 
-           s.submission_date,
-           (SELECT COUNT(*) FROM organization_accreditation_files WHERE organization_id = o.id) as file_count,
-           (SELECT COUNT(*) FROM organization_members WHERE organization_id = o.id AND is_active = 1) as member_count
-    FROM organizations o
-    LEFT JOIN accreditation_submissions s ON o.id = s.organization_id
-    WHERE o.accreditation_status = "active"
-    ORDER BY o.updated_at DESC
+$approvedApps = $pdo->query('
+    SELECT a.*, o.name as org_name, o.barangay, o.category,
+           (SELECT COUNT(*) FROM accreditation_documents WHERE application_id = a.id) as doc_count
+    FROM accreditation_applications a
+    LEFT JOIN organizations o ON o.id = a.organization_id
+    WHERE a.status = "approved"
+    ORDER BY a.reviewed_at DESC
 ')->fetchAll();
 
-$rejectedOrgs = $pdo->query('
-    SELECT o.*, 
-           s.submission_date,
-           s.review_comments,
-           (SELECT COUNT(*) FROM organization_accreditation_files WHERE organization_id = o.id) as file_count,
-           (SELECT COUNT(*) FROM organization_members WHERE organization_id = o.id AND is_active = 1) as member_count
-    FROM organizations o
-    LEFT JOIN accreditation_submissions s ON o.id = s.organization_id
-    WHERE o.accreditation_status = "rejected"
-    ORDER BY s.submission_date DESC
+$rejectedApps = $pdo->query('
+    SELECT a.*, o.name as org_name, o.barangay, o.category
+    FROM accreditation_applications a
+    LEFT JOIN organizations o ON o.id = a.organization_id
+    WHERE a.status = "rejected"
+    ORDER BY a.reviewed_at DESC
 ')->fetchAll();
 ?>
 <!DOCTYPE html>
@@ -104,50 +129,44 @@ $rejectedOrgs = $pdo->query('
 <!-- Tabs -->
 <div style="display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid #e2e8f0">
   <button class="tab-btn active" onclick="switchTab('pending')">
-    <i class="fas fa-hourglass-half"></i> Pending (<?=count($pendingOrgs)?>)
+    <i class="fas fa-hourglass-half"></i> Pending (<?=count($pendingApps)?>)
   </button>
   <button class="tab-btn" onclick="switchTab('approved')">
-    <i class="fas fa-check-circle"></i> Approved (<?=count($approvedOrgs)?>)
+    <i class="fas fa-check-circle"></i> Approved (<?=count($approvedApps)?>)
   </button>
   <button class="tab-btn" onclick="switchTab('rejected')">
-    <i class="fas fa-times-circle"></i> Rejected (<?=count($rejectedOrgs)?>)
+    <i class="fas fa-times-circle"></i> Rejected (<?=count($rejectedApps)?>)
   </button>
 </div>
 
 <!-- Pending Tab -->
 <div id="pending-tab" class="tab-content" style="display:block">
-  <?php if (empty($pendingOrgs)): ?>
+  <?php if (empty($pendingApps)): ?>
     <div style="text-align:center;padding:40px;color:#718096">
       <i class="fas fa-inbox" style="font-size:40px;margin-bottom:10px;display:block;opacity:0.5"></i>
       <p>No pending accreditations</p>
     </div>
   <?php else: ?>
-    <?php foreach ($pendingOrgs as $org): ?>
+    <?php foreach ($pendingApps as $app): ?>
       <div class="card" style="margin-bottom:15px">
         <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:15px">
           <div>
-            <h3 style="margin:0;font-size:18px"><?=htmlspecialchars($org['name'])?></h3>
+            <h3 style="margin:0;font-size:18px"><?=htmlspecialchars($app['org_name'])?></h3>
             <p style="margin:5px 0 0 0;color:#718096;font-size:13px">
-              <i class="fas fa-map-marker-alt"></i> <?=htmlspecialchars($org['barangay'])?> • 
-              <?=htmlspecialchars($org['category'])?> • 
-              <?=$org['member_count']?> member<?=$org['member_count']!==1?'s':''?>
+              <i class="fas fa-map-marker-alt"></i> <?=htmlspecialchars($app['barangay'])?> • 
+              <?=htmlspecialchars($app['category'])?> • 
+              <?=$app['member_count']?> member<?=$app['member_count']!==1?'s':''?>
             </p>
           </div>
           <span class="badge" style="background:#ffc107;color:#000">
-            <?=ucfirst($org['submission_status'])?>
+            <?=ucwords(str_replace('_', ' ', $app['status']))?>
           </span>
         </div>
 
-        <?php if ($org['submission_status'] !== 'not_submitted'): ?>
-          <div style="background:#f8f9fa;padding:10px;border-radius:6px;margin-bottom:15px;font-size:13px">
-            <p style="margin:0"><strong>Submitted:</strong> <?=date('M d, Y H:i', strtotime($org['submission_date']))?></p>
-            <p style="margin:5px 0 0 0"><strong>Files:</strong> <?=$org['file_count']?> document<?=$org['file_count']!==1?'s':''?> uploaded</p>
-          </div>
-        <?php else: ?>
-          <div style="background:#fff3cd;padding:10px;border-radius:6px;margin-bottom:15px;font-size:13px;color:#856404">
-            <i class="fas fa-exclamation-triangle"></i> No documents submitted yet
-          </div>
-        <?php endif; ?>
+        <div style="background:#f8f9fa;padding:10px;border-radius:6px;margin-bottom:15px;font-size:13px">
+          <p style="margin:0"><strong>Submitted:</strong> <?=date('M d, Y H:i', strtotime($app['created_at']))?></p>
+          <p style="margin:5px 0 0 0"><strong>Documents:</strong> <?=$app['doc_count']?> file<?=$app['doc_count']!==1?'s':''?> uploaded</p>
+        </div>
 
         <div style="display:flex;gap:10px">
           <button class="btn-secondary" onclick="viewDocuments(<?=$org['id']?>)">
