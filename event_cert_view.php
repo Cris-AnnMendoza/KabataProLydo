@@ -107,7 +107,8 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
 .cert-event{font-weight:900;color:#0d3b6e;font-size:.98rem;text-transform:uppercase;letter-spacing:.02em}
 
 /* Footer */
-.cert-footer{display:grid;grid-template-columns:1fr 180px 1fr;gap:20px;margin-top:16px;align-items:flex-end}
+.cert-footer{display:grid;grid-template-columns:1fr 180px 1fr;gap:20px;margin-top:16px;align-items:flex-end;width:100%}
+.cert-footer > div:nth-child(2){display:flex;flex-direction:column;align-items:center;gap:16px;justify-content:flex-end;flex-shrink:0;min-width:180px}
 .cert-sig{text-align:center;font-family:'Inter',sans-serif}
 .cert-sig-line{height:3px;background:#0d3b6e;margin-bottom:6px;width:160px;margin-left:auto;margin-right:auto}
 .cert-sig-name{font-size:.76rem;font-weight:900;color:#0d3b6e;letter-spacing:.02em;text-transform:uppercase}
@@ -117,10 +118,10 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
 .cert-info-val{font-size:.85rem;font-weight:900;color:#0d3b6e;margin-top:5px;font-family:'Courier New',monospace;letter-spacing:.08em}
 
 /* Verification QR */
-.verify-box{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:140px}
-.verify-box #certQR{display:flex !important;align-items:center;justify-content:center;width:140px;height:140px}
+.verify-box{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:140px;flex-shrink:0;width:140px}
+.verify-box #certQR{display:flex !important;align-items:center;justify-content:center;width:140px !important;height:140px !important;flex-shrink:0}
 .verify-box #certQR canvas,
-.verify-box #certQR img{width:140px !important;height:140px !important;border-radius:6px;border:3px solid #0d3b6e;padding:6px;background:#fff;box-shadow:0 4px 12px rgba(13,59,110,.15);display:block !important}
+.verify-box #certQR img{width:140px !important;height:140px !important;border-radius:6px;border:3px solid #0d3b6e;padding:6px;background:#fff;box-shadow:0 4px 12px rgba(13,59,110,.15);display:block !important;flex-shrink:0}
 .verify-label{font-size:.65rem;color:#0d3b6e;text-align:center;max-width:140px;line-height:1.5;font-weight:800;font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:.05em}
 
 .corner{position:absolute;width:40px;height:40px;z-index:4}
@@ -146,12 +147,15 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
   .divider{width:120px}
 }
 @media print{
-  html,body{width:279mm;height:216mm;margin:0;padding:0;background:#fff;overflow:visible}
-  body{padding:0;display:block;overflow:visible}
+  html,body{width:279mm;height:auto;margin:0;padding:0;background:#fff}
+  body{padding:0;display:block}
   .print-bar{display:none!important}
-  .cert-wrap{box-shadow:none;width:279mm;height:auto;min-height:216mm;max-width:none;page-break-after:avoid;page-break-inside:avoid;background:#fef8f3;margin:0;overflow:visible}
-  .cert-content{page-break-inside:avoid;overflow:visible}
-  @page{size:279mm 216mm landscape;margin:0;overflow:visible}
+  .cert-wrap{box-shadow:none;width:279mm;height:auto;max-width:none;page-break-after:avoid;page-break-inside:avoid;background:#fef8f3;margin:0;aspect-ratio:11/8.5}
+  .cert-content{page-break-inside:avoid;overflow:visible;height:auto}
+  .cert-footer{page-break-inside:avoid}
+  .verify-box{page-break-inside:avoid}
+  .verify-box #certQR{width:140px!important;height:140px!important;flex-shrink:0}
+  @page{size:279mm 216mm landscape;margin:0;padding:0}
 }
 </style>
 </head>
@@ -233,10 +237,10 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
             <div class="cert-info-val" style="font-family:'Inter',sans-serif;letter-spacing:0;margin-top:6px"><?= $issueDate ?></div>
           </div>
         </div>
-        <!-- Verification QR - proper sizing -->
-        <div class="verify-box">
-          <div id="certQR" style="display:flex;align-items:center;justify-content:center"></div>
-          <div class="verify-label">Scan to verify certificate</div>
+        <!-- Verification QR - single scanable QR code -->
+        <div class="verify-box" id="verifyBoxContainer">
+          <div id="certQR"></div>
+          <div class="verify-label">Scan to verify</div>
         </div>
       </div>
 
