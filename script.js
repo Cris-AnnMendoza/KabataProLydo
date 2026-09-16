@@ -214,6 +214,21 @@ document.addEventListener('DOMContentLoaded', function() {
         updateStepDisplay();
       }
     }
+  });tn?.addEventListener('click', function(e) {
+    // Special validation for Step 4 (organization selection)
+    if (currentStep === 4) {
+      if (!validateOrganizationStep()) {
+        return;
+      }
+    }
+    
+    // Standard validation for all steps
+    if (validateStep(currentStep)) {
+      if (currentStep < totalSteps) {
+        currentStep++;
+        updateStepDisplay();
+      }
+    }
   });
 
   prevBtn?.addEventListener('click', () => {
@@ -246,18 +261,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     return true;
   }
-
-  // Add organization validation to next button
-  const originalNextClick = nextBtn.onclick;
-  nextBtn?.addEventListener('click', function(e) {
-    // Step 4 has special validation for organization
-    if (currentStep === 3) { // Step 3 is org info step (0-indexed would be different, but form shows step 4)
-      if (!validateOrganizationStep()) {
-        e.preventDefault();
-        return;
-      }
-    }
-  });
 
   // ─────────────────────────────────────────
   // FORM VALIDATION

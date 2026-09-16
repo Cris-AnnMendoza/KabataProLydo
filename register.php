@@ -127,8 +127,21 @@ if ($registerAs === 'organization_president') {
     // Option 2: Create new organization (pending accreditation)
     elseif (!empty($_POST['new_organization_name'])) {
         $newOrgName = trim($_POST['new_organization_name']);
+        if (!$newOrgName) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => 'Organization name cannot be empty.']);
+            exit;
+        }
+        
         $newOrgCategory = trim($_POST['new_organization_category'] ?? 'Other');
         $newOrgBarangay = trim($_POST['barangay']);
+        
+        // Verify barangay is provided
+        if (!$newOrgBarangay) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => 'Barangay is required to create an organization.']);
+            exit;
+        }
         
         // Insert new organization in pending status
         $insertOrg = $pdo->prepare('INSERT INTO organizations (name, category, barangay, accreditation_status, created_by) VALUES (?, ?, ?, ?, ?)');
