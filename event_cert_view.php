@@ -78,7 +78,7 @@ $verifyUrl    = 'http://' . $_SERVER['HTTP_HOST'] . '/verify_cert.php?cert=' . u
 <title>Certificate – <?= htmlspecialchars($event['title']) ?></title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:20px}
@@ -119,9 +119,9 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
 
 /* Verification QR */
 .verify-box{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:140px;flex-shrink:0;width:140px}
-.verify-box #certQR{display:flex !important;align-items:center;justify-content:center;width:140px !important;height:140px !important;flex-shrink:0}
-.verify-box #certQR canvas,
-.verify-box #certQR img{width:140px !important;height:140px !important;border-radius:6px;border:3px solid #0d3b6e;padding:6px;background:#fff;box-shadow:0 4px 12px rgba(13,59,110,.15);display:block !important;flex-shrink:0}
+.verify-box #certQR{display:block !important;width:140px !important;height:140px !important;flex-shrink:0;margin:0 !important;padding:0 !important;overflow:hidden}
+.verify-box #certQR canvas{width:140px !important;height:140px !important;display:block !important;border:3px solid #0d3b6e;border-radius:6px;padding:6px;background:#fff;box-shadow:0 4px 12px rgba(13,59,110,.15);flex-shrink:0;margin:0 !important;box-sizing:border-box !important}
+.verify-box #certQR img{width:140px !important;height:140px !important;display:none !important}
 .verify-label{font-size:.65rem;color:#0d3b6e;text-align:center;max-width:140px;line-height:1.5;font-weight:800;font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:.05em}
 
 .corner{position:absolute;width:40px;height:40px;z-index:4}
@@ -138,9 +138,8 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
   .cert-footer{grid-template-columns:1fr;gap:12px}
   .cert-header{flex-direction:column;gap:12px}
   .verify-box{gap:8px}
-  .verify-box #certQR{width:120px;height:120px}
-  .verify-box #certQR canvas,
-  .verify-box #certQR img{width:120px!important;height:120px!important;border-width:2px}
+  .verify-box #certQR{width:120px!important;height:120px!important}
+  .verify-box #certQR canvas{width:120px!important;height:120px!important;border-width:2px}
   .verify-label{max-width:120px;font-size:.62rem}
   .cert-sig-line{width:100px}
   .cert-name{min-width:auto}
@@ -153,8 +152,9 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
   .cert-wrap{box-shadow:none;width:279mm;height:auto;max-width:none;page-break-after:avoid;page-break-inside:avoid;background:#fef8f3;margin:0;aspect-ratio:11/8.5}
   .cert-content{page-break-inside:avoid;overflow:visible;height:auto}
   .cert-footer{page-break-inside:avoid}
-  .verify-box{page-break-inside:avoid}
+  .verify-box{page-break-inside:avoid;flex-shrink:0}
   .verify-box #certQR{width:140px!important;height:140px!important;flex-shrink:0}
+  .verify-box #certQR canvas{width:140px!important;height:140px!important}
   @page{size:279mm 216mm landscape;margin:0;padding:0}
 }
 </style>
@@ -256,14 +256,23 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
 </div>
 
 <script>
-// Generate verification QR code
-new QRCode(document.getElementById('certQR'), {
-  text: <?= json_encode($verifyUrl) ?>,
-  width: 140,
-  height: 140,
-  colorDark: '#0d3b6e',
-  colorLight: '#ffffff',
-  correctLevel: QRCode.CorrectLevel.H
+// Generate verification QR code - canvas based for reliability
+document.addEventListener('DOMContentLoaded', function() {
+  var qrContainer = document.getElementById('certQR');
+  if (qrContainer) {
+    // Clear any existing content
+    qrContainer.innerHTML = '';
+    // Create new QR code with canvas rendering
+    new QRCode(qrContainer, {
+      text: <?= json_encode($verifyUrl) ?>,
+      width: 140,
+      height: 140,
+      colorDark: '#0d3b6e',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H,
+      useSVG: false
+    });
+  }
 });
 </script>
 </body>
