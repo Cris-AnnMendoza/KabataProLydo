@@ -169,19 +169,16 @@ $rejectedApps = $pdo->query('
         </div>
 
         <div style="display:flex;gap:10px">
-          <button class="btn-secondary" onclick="viewDocuments(<?=$org['id']?>)">
+          <button class="btn-secondary" onclick="viewDocuments(<?=$app['id']?>)">
             <i class="fas fa-file-pdf"></i> View Documents
           </button>
-          <button class="btn-secondary" onclick="viewMembers(<?=$org['id']?>)">
-            <i class="fas fa-users"></i> View Members
-          </button>
-          <button class="btn-success" onclick="approveOrg(<?=$org['id']?>)">
+          <button class="btn-success" onclick="showApproveModal(<?=$app['id']?>)">
             <i class="fas fa-check"></i> Approve
           </button>
-          <button class="btn-warning" onclick="requestRevision(<?=$org['id']?>)">
+          <button class="btn-warning" onclick="showRevisionModal(<?=$app['id']?>)">
             <i class="fas fa-edit"></i> Request Revision
           </button>
-          <button class="btn-danger" onclick="rejectOrg(<?=$org['id']?>)">
+          <button class="btn-danger" onclick="showRejectModal(<?=$app['id']?>)">
             <i class="fas fa-times"></i> Reject
           </button>
         </div>
@@ -192,31 +189,33 @@ $rejectedApps = $pdo->query('
 
 <!-- Approved Tab -->
 <div id="approved-tab" class="tab-content" style="display:none">
-  <?php if (empty($approvedOrgs)): ?>
+  <?php if (empty($approvedApps)): ?>
     <div style="text-align:center;padding:40px;color:#718096">
       <i class="fas fa-check-circle" style="font-size:40px;margin-bottom:10px;display:block;opacity:0.5"></i>
-      <p>No approved organizations yet</p>
+      <p>No approved applications yet</p>
     </div>
   <?php else: ?>
-    <?php foreach ($approvedOrgs as $org): ?>
+    <?php foreach ($approvedApps as $app): ?>
       <div class="card" style="margin-bottom:15px;border-left:4px solid #28a745">
         <div style="display:flex;justify-content:space-between;align-items:start">
           <div>
-            <h3 style="margin:0;font-size:18px"><?=htmlspecialchars($org['name'])?></h3>
+            <h3 style="margin:0;font-size:18px"><?=htmlspecialchars($app['org_name'])?></h3>
             <p style="margin:5px 0 0 0;color:#718096;font-size:13px">
-              <i class="fas fa-map-marker-alt"></i> <?=htmlspecialchars($org['barangay'])?> • 
-              <?=htmlspecialchars($org['category'])?> • 
-              <?=$org['member_count']?> member<?=$org['member_count']!==1?'s':''?>
+              <i class="fas fa-map-marker-alt"></i> <?=htmlspecialchars($app['barangay'])?> • 
+              <?=htmlspecialchars($app['category'])?>
             </p>
+            <?php if ($app['certificate_no']): ?>
+              <p style="margin:10px 0 0 0;padding:10px;background:#d4edda;border-radius:4px;font-size:13px;color:#155724">
+                <strong>Certificate:</strong> <?=htmlspecialchars($app['certificate_no'])?> • 
+                <strong>Valid Until:</strong> <?=date('F j, Y', strtotime($app['valid_until']))?>
+              </p>
+            <?php endif; ?>
           </div>
-          <span class="badge" style="background:#28a745;color:#fff">Accredited</span>
+          <span class="badge" style="background:#28a745;color:#fff">Approved</span>
         </div>
         <div style="display:flex;gap:10px;margin-top:15px">
-          <button class="btn-secondary" onclick="viewDocuments(<?=$org['id']?>)">
+          <button class="btn-secondary" onclick="viewDocuments(<?=$app['id']?>)">
             <i class="fas fa-file-pdf"></i> View Documents
-          </button>
-          <button class="btn-secondary" onclick="viewMembers(<?=$org['id']?>)">
-            <i class="fas fa-users"></i> View Members
           </button>
         </div>
       </div>
@@ -226,24 +225,24 @@ $rejectedApps = $pdo->query('
 
 <!-- Rejected Tab -->
 <div id="rejected-tab" class="tab-content" style="display:none">
-  <?php if (empty($rejectedOrgs)): ?>
+  <?php if (empty($rejectedApps)): ?>
     <div style="text-align:center;padding:40px;color:#718096">
       <i class="fas fa-times-circle" style="font-size:40px;margin-bottom:10px;display:block;opacity:0.5"></i>
-      <p>No rejected organizations</p>
+      <p>No rejected applications</p>
     </div>
   <?php else: ?>
-    <?php foreach ($rejectedOrgs as $org): ?>
+    <?php foreach ($rejectedApps as $app): ?>
       <div class="card" style="margin-bottom:15px;border-left:4px solid #dc3545">
         <div style="display:flex;justify-content:space-between;align-items:start">
           <div>
-            <h3 style="margin:0;font-size:18px"><?=htmlspecialchars($org['name'])?></h3>
+            <h3 style="margin:0;font-size:18px"><?=htmlspecialchars($app['org_name'])?></h3>
             <p style="margin:5px 0 0 0;color:#718096;font-size:13px">
-              <i class="fas fa-map-marker-alt"></i> <?=htmlspecialchars($org['barangay'])?> • 
-              <?=htmlspecialchars($org['category'])?>
+              <i class="fas fa-map-marker-alt"></i> <?=htmlspecialchars($app['barangay'])?> • 
+              <?=htmlspecialchars($app['category'])?>
             </p>
-            <?php if ($org['review_comments']): ?>
+            <?php if ($app['rejection_reason']): ?>
               <p style="margin:10px 0 0 0;padding:10px;background:#ffe5e5;border-radius:4px;font-size:13px;color:#721c24">
-                <strong>Reason:</strong> <?=htmlspecialchars($org['review_comments'])?>
+                <strong>Reason:</strong> <?=htmlspecialchars($app['rejection_reason'])?>
               </p>
             <?php endif; ?>
           </div>
@@ -408,6 +407,96 @@ window.onclick = function(e) {
     background: #c82333;
 }
 </style>
+
+<!-- APPROVE MODAL -->
+<div id="approveModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:#fff;padding:30px;border-radius:12px;max-width:500px;width:90%">
+    <h3 style="margin:0 0 15px 0">Approve Application?</h3>
+    <p style="color:#666;margin:0 0 20px 0">This will mark the organization as accredited and generate a certificate number.</p>
+    <form method="POST" style="display:flex;gap:10px;justify-content:flex-end">
+      <input type="hidden" name="action" value="approve"/>
+      <input type="hidden" name="app_id" id="modalAppId" value=""/>
+      <button type="button" onclick="document.getElementById('approveModal').style.display='none'" style="padding:10px 20px;background:#e2e8f0;border:none;border-radius:6px;cursor:pointer">Cancel</button>
+      <button type="submit" style="padding:10px 20px;background:#28a745;color:#fff;border:none;border-radius:6px;cursor:pointer">Approve</button>
+    </form>
+  </div>
+</div>
+
+<!-- REVISION MODAL -->
+<div id="revisionModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:#fff;padding:30px;border-radius:12px;max-width:500px;width:90%">
+    <h3 style="margin:0 0 15px 0">Request Revision</h3>
+    <form method="POST">
+      <input type="hidden" name="action" value="request_revision"/>
+      <input type="hidden" name="app_id" id="revisionAppId" value=""/>
+      <div style="margin-bottom:15px">
+        <label style="display:block;margin-bottom:5px;font-weight:600">Reason for Revision:</label>
+        <textarea name="revision_reason" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:6px;font-family:inherit;min-height:100px" required placeholder="Explain what needs to be revised..."></textarea>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button type="button" onclick="document.getElementById('revisionModal').style.display='none'" style="padding:10px 20px;background:#e2e8f0;border:none;border-radius:6px;cursor:pointer">Cancel</button>
+        <button type="submit" style="padding:10px 20px;background:#ff9800;color:#fff;border:none;border-radius:6px;cursor:pointer">Send Revision Request</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- REJECT MODAL -->
+<div id="rejectModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:#fff;padding:30px;border-radius:12px;max-width:500px;width:90%">
+    <h3 style="margin:0 0 15px 0">Reject Application</h3>
+    <form method="POST">
+      <input type="hidden" name="action" value="reject"/>
+      <input type="hidden" name="app_id" id="rejectAppId" value=""/>
+      <div style="margin-bottom:15px">
+        <label style="display:block;margin-bottom:5px;font-weight:600">Reason for Rejection:</label>
+        <textarea name="rejection_reason" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:6px;font-family:inherit;min-height:100px" required placeholder="Explain why the application is being rejected..."></textarea>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button type="button" onclick="document.getElementById('rejectModal').style.display='none'" style="padding:10px 20px;background:#e2e8f0;border:none;border-radius:6px;cursor:pointer">Cancel</button>
+        <button type="submit" style="padding:10px 20px;background:#dc3545;color:#fff;border:none;border-radius:6px;cursor:pointer">Reject</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabName + '-tab').style.display = 'block';
+  event.target.classList.add('active');
+}
+
+function showApproveModal(appId) {
+  document.getElementById('modalAppId').value = appId;
+  document.getElementById('approveModal').style.display = 'flex';
+}
+
+function showRevisionModal(appId) {
+  document.getElementById('revisionAppId').value = appId;
+  document.getElementById('revisionModal').style.display = 'flex';
+}
+
+function showRejectModal(appId) {
+  document.getElementById('rejectAppId').value = appId;
+  document.getElementById('rejectModal').style.display = 'flex';
+}
+
+function viewDocuments(appId) {
+  window.location.href = 'admin2/accreditation.php?view=' + appId;
+}
+
+// Close modals when clicking outside
+document.addEventListener('click', function(event) {
+  ['approveModal', 'revisionModal', 'rejectModal'].forEach(modalId => {
+    const modal = document.getElementById(modalId);
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+});
+</script>
 
 </body>
 </html>

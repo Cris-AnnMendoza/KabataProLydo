@@ -1,13 +1,14 @@
 -- Accreditation tables
 CREATE TABLE IF NOT EXISTS accreditation_applications (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  organization_id INT UNSIGNED DEFAULT NULL,
   organization_name VARCHAR(200) NOT NULL,
   category VARCHAR(100),
   barangay VARCHAR(100),
   contact_person VARCHAR(150),
   contact_email VARCHAR(191),
   contact_phone VARCHAR(30),
-  submitted_by INT UNSIGNED NOT NULL,
+  submitted_by INT UNSIGNED DEFAULT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'submitted',
   certificate_no VARCHAR(50) UNIQUE,
   valid_until DATE,
@@ -16,13 +17,15 @@ CREATE TABLE IF NOT EXISTS accreditation_applications (
   rejection_reason TEXT,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (submitted_by) REFERENCES youth_users(id) ON DELETE CASCADE,
+  FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
+  FOREIGN KEY (submitted_by) REFERENCES youth_users(id) ON DELETE SET NULL,
   FOREIGN KEY (reviewed_by) REFERENCES admin_users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS accreditation_documents (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   application_id INT UNSIGNED NOT NULL,
+  organization_id INT UNSIGNED DEFAULT NULL,
   doc_type VARCHAR(50) NOT NULL,
   file_path VARCHAR(255) NOT NULL,
   original_name VARCHAR(255) NOT NULL,
@@ -31,7 +34,9 @@ CREATE TABLE IF NOT EXISTS accreditation_documents (
   reviewed_by INT UNSIGNED,
   reviewed_at TIMESTAMP NULL,
   uploaded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_app_doc (application_id, doc_type),
   FOREIGN KEY (application_id) REFERENCES accreditation_applications(id) ON DELETE CASCADE,
+  FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
   FOREIGN KEY (reviewed_by) REFERENCES admin_users(id) ON DELETE SET NULL
 );
 
