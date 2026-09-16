@@ -16,8 +16,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ruleKeys = $_POST['rule_keys'] ?? [];   // multiple checkboxes
         $bonus    = (int)($_POST['bonus_points'] ?? 0);
         $bonusNote= trim($_POST['bonus_note'] ?? '');
+        $currentTab = $_POST['tab'] ?? 'logs';
 
-        if (!$orgId) { flash('error','Please select an organization.'); header('Location: merit.php?tab=logs'); exit; }
+        if (!$orgId) { 
+            flash('error','Please select an organization.'); 
+            header('Location: merit.php?tab=' . urlencode($currentTab)); 
+            exit; 
+        }
+
+        // Verify organization exists and is active
+        $orgStmt = $pdo->prepare('SELECT id FROM organizations WHERE id = ? AND is_active = 1 LIMIT 1');
+        $orgStmt->execute([$orgId]);
+        if (!$orgStmt->fetch()) {
+            flash('error', 'Invalid organization selected.');
+            header('Location: merit.php?tab=' . urlencode($currentTab));
+            exit;
+        }
 
         $applied = [];
         $allConsequences = [];
@@ -34,11 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Apply bonus points from LYDO Head
         if ($bonus !== 0 && $bonusNote) {
             $type = $bonus > 0 ? 'merit' : 'demerit';
-            $absBonus = abs($bonus); // Store absolute value for demerit
-            
-            // For positive bonus, store as positive merit
-            // For negative bonus, store as negative demerit
-            $pointsToStore = $bonus; // Keep original sign
+            $pointsToStore = $bonus;
             
             $pdo->prepare(
                 'INSERT INTO org_merit_logs (organization_id,points,type,reason,category,awarded_by,created_at) VALUES (?,?,?,?,?,?,CURRENT_TIMESTAMP)'
@@ -62,38 +72,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             flash('success', $msg);
         }
-        header('Location: merit.php?tab=logs'); exit;
+        header('Location: merit.php?tab=' . urlencode($currentTab)); 
+        exit;
     }
 
     if ($action === 'warn') {
         $orgId  = (int)$_POST['org_id'];
         $reason = trim($_POST['reason'] ?? '');
         $level  = $_POST['level'] ?? 'warning';
-        if ($orgId && $reason) {
-            $pdo->prepare('INSERT INTO org_warning_letters (organization_id,reason,level,issued_by) VALUES (?,?,?,?)')
-                ->execute([$orgId, $reason, $level, $admin['id']]);
-            flash('success', 'Warning letter issued.');
+        $currentTab = $_POST['tab'] ?? 'warnings';
+        
+        if (!$orgId) {
+            flash('error', 'Please select an organization.');
+            header('Location: merit.php?tab=' . urlencode($currentTab));
+            exit;
         }
-        header('Location: merit.php?tab=warnings'); exit;
+        
+        // Verify organization exists
+        $orgStmt = $pdo->prepare('SELECT id FROM organizations WHERE id = ? LIMIT 1');
+        $orgStmt->execute([$orgId]);
+        if (!$orgStmt->fetch()) {
+            flash('error', 'Invalid organization selected.');
+            header('Location: merit.php?tab=' . urlencode($currentTab));
+            exit;
+        }
+        
+        if (!$reason) {
+            flash('error', 'Reason is required.');
+            header('Location: merit.php?tab=' . urlencode($currentTab));
+            exit;
+        }
+        
+        $pdo->prepare('INSERT INTO org_warning_letters (organization_id,reason,level,issued_by) VALUES (?,?,?,?)')
+            ->execute([$orgId, $reason, $level, $admin['id']]);
+        flash('success', 'Warning letter issued.');
+        header('Location: merit.php?tab=' . urlencode($currentTab)); 
+        exit;
     }
 
     if ($action === 'review_letter') {
         $id     = (int)$_POST['letter_id'];
         $status = $_POST['status'] ?? 'accepted';
+        $currentTab = $_POST['tab'] ?? 'letters';
+        
+        if (!$id) {
+            flash('error', 'Invalid letter ID.');
+            header('Location: merit.php?tab=' . urlencode($currentTab));
+            exit;
+        }
+        
         $pdo->prepare('UPDATE org_explanation_letters SET status=?,reviewed_by=?,reviewed_at=CURRENT_TIMESTAMP WHERE id=?')
             ->execute([$status, $admin['id'], $id]);
         flash('success', 'Explanation letter reviewed.');
-        header('Location: merit.php?tab=letters'); exit;
+        header('Location: merit.php?tab=' . urlencode($currentTab)); 
+        exit;
     }
 
     if ($action === 'submit_explanation') {
         $orgId   = (int)$_POST['organization_id'];
         $subject = trim($_POST['subject'] ?? '');
         $content = trim($_POST['content'] ?? '');
+        $currentTab = $_POST['tab'] ?? 'explanation';
         
         if (!$orgId || !$subject || !$content) {
             flash('error', 'All fields are required.');
-            header('Location: ' . $_SERVER['HTTP_REFERER']); exit;
+            header('Location: merit.php?tab=' . urlencode($currentTab)); 
+            exit;
+        }
+        
+        // Verify organization exists
+        $orgStmt = $pdo->prepare('SELECT id FROM organizations WHERE id = ? LIMIT 1');
+        $orgStmt->execute([$orgId]);
+        if (!$orgStmt->fetch()) {
+            flash('error', 'Invalid organization selected.');
+            header('Location: merit.php?tab=' . urlencode($currentTab));
+            exit;
         }
         
         // Handle file upload if present
@@ -105,34 +158,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if (!in_array($file['type'], $allowedTypes)) {
                 flash('error', 'Invalid file type. Only PDF, DOC, DOCX, JPG, PNG are allowed.');
-                header('Location: ' . $_SERVER['HTTP_REFERER']); exit;
+                header('Location: merit.php?tab=' . urlencode($currentTab)); 
+                exit;
             }
             
             if ($file['size'] > $maxSize) {
                 flash('error', 'File size exceeds 5MB limit.');
-                header('Location: ' . $_SERVER['HTTP_REFERER']); exit;
+                header('Location: merit.php?tab=' . urlencode($currentTab)); 
+                exit;
             }
             
             // Create uploads directory if it doesn't exist
             $uploadDir = __DIR__ . '/../uploads/explanation_letters/';
-            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+            if (!is_dir($uploadDir)) {
+                if (!mkdir($uploadDir, 0755, true)) {
+                    flash('error', 'Failed to create upload directory. Please contact support.');
+                    header('Location: merit.php?tab=' . urlencode($currentTab)); 
+                    exit;
+                }
+            }
             
             // Generate unique filename
             $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
             $filename = 'explanation_' . $orgId . '_' . time() . '.' . $ext;
             $filepath = $uploadDir . $filename;
             
-            if (move_uploaded_file($file['tmp_name'], $filepath)) {
-                $uploadedFile = $filename;
+            if (!move_uploaded_file($file['tmp_name'], $filepath)) {
+                flash('error', 'Failed to upload file. Please try again.');
+                header('Location: merit.php?tab=' . urlencode($currentTab)); 
+                exit;
             }
+            $uploadedFile = $filename;
         }
         
         // Insert explanation letter
-        $pdo->prepare('INSERT INTO org_explanation_letters (user_id, organization_id, subject, content, attachment, status, created_at) VALUES (0,?,?,?,?,?,CURRENT_TIMESTAMP)')
-            ->execute([$orgId, $subject, $content, $uploadedFile, 'pending']);
+        try {
+            $pdo->prepare('INSERT INTO org_explanation_letters (user_id, organization_id, subject, content, attachment, status, created_at) VALUES (0,?,?,?,?,?,CURRENT_TIMESTAMP)')
+                ->execute([$orgId, $subject, $content, $uploadedFile, 'pending']);
+            
+            flash('success', 'Explanation letter submitted successfully. The LYDO admin will review it soon.');
+        } catch (Exception $e) {
+            flash('error', 'Failed to submit explanation letter. Please try again.');
+        }
         
-        flash('success', 'Explanation letter submitted successfully. The LYDO admin will review it soon.');
-        header('Location: ' . $_SERVER['HTTP_REFERER']); exit;
+        header('Location: merit.php?tab=' . urlencode($currentTab)); 
+        exit;
     }
 }
 
@@ -371,12 +441,14 @@ $orgList = $pdo->query('SELECT id, name FROM organizations ORDER BY name')->fetc
               <input type="hidden" name="action" value="review_letter"/>
               <input type="hidden" name="letter_id" value="<?=$l['id']?>"/>
               <input type="hidden" name="status" value="accepted"/>
+              <input type="hidden" name="tab" value="<?= htmlspecialchars($tab) ?>"/>
               <button type="submit" class="btn-approve"><i class="fas fa-check"></i> Accept</button>
             </form>
             <form method="POST" style="display:inline">
               <input type="hidden" name="action" value="review_letter"/>
               <input type="hidden" name="letter_id" value="<?=$l['id']?>"/>
               <input type="hidden" name="status" value="rejected"/>
+              <input type="hidden" name="tab" value="<?= htmlspecialchars($tab) ?>"/>
               <button type="submit" class="btn-reject"><i class="fas fa-times"></i> Reject</button>
             </form>
             <?php endif; ?>
@@ -441,6 +513,7 @@ $orgList = $pdo->query('SELECT id, name FROM organizations ORDER BY name')->fetc
     </div>
     <form method="POST" class="modal-body">
       <input type="hidden" name="action" value="award"/>
+      <input type="hidden" name="tab" value="<?= htmlspecialchars($tab) ?>"/>
 
       <!-- Organization -->
       <div class="fg">
@@ -508,6 +581,7 @@ $orgList = $pdo->query('SELECT id, name FROM organizations ORDER BY name')->fetc
     </div>
     <form method="POST" class="modal-body">
       <input type="hidden" name="action" value="warn"/>
+      <input type="hidden" name="tab" value="<?= htmlspecialchars($tab) ?>"/>
       <div class="fg"><label>Organization <span class="req">*</span></label>
         <select name="org_id" required>
           <option value="">Select organization...</option>

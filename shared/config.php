@@ -271,18 +271,25 @@ function verifyRememberMeToken(): bool {
     }
     
     list($token, $userType, $userId) = $parts;
+    
+    // Validate token format before hashing
+    if (empty($token) || !is_numeric($userId) || !in_array($userType, ['admin', 'president', 'youth'])) {
+        setcookie('remember_me_token', '', time() - 3600, '/');
+        return false;
+    }
+    
     $hashedToken = hash('sha256', $token);
     $pdo = db();
     
     if ($userType === 'admin') {
         $stmt = $pdo->prepare('SELECT * FROM admin_remember_tokens WHERE admin_id = ? AND token = ? AND expires_at > NOW() LIMIT 1');
-        $stmt->execute([$userId, $hashedToken]);
+        $stmt->execute([(int)$userId, $hashedToken]);
         $record = $stmt->fetch();
         
         if ($record) {
-            // Restore session
-            $adminStmt = $pdo->prepare('SELECT * FROM admin_users WHERE id = ? AND is_active = 1');
-            $adminStmt->execute([$userId]);
+            // Restore session and verify admin is still active
+            $adminStmt = $pdo->prepare('SELECT * FROM admin_users WHERE id = ? AND is_active = 1 LIMIT 1');
+            $adminStmt->execute([(int)$userId]);
             $admin = $adminStmt->fetch();
             
             if ($admin) {
@@ -295,17 +302,22 @@ function verifyRememberMeToken(): bool {
                     'barangay'  => $admin['barangay'],
                 ];
                 return true;
+            } else {
+                // Admin was deactivated - clear token
+                $pdo->prepare('DELETE FROM admin_remember_tokens WHERE admin_id = ?')->execute([(int)$userId]);
+                setcookie('remember_me_token', '', time() - 3600, '/');
+                return false;
             }
         }
     } elseif ($userType === 'president') {
         $stmt = $pdo->prepare('SELECT * FROM president_remember_tokens WHERE president_id = ? AND token = ? AND expires_at > NOW() LIMIT 1');
-        $stmt->execute([$userId, $hashedToken]);
+        $stmt->execute([(int)$userId, $hashedToken]);
         $record = $stmt->fetch();
         
         if ($record) {
-            // Restore session
-            $presStmt = $pdo->prepare('SELECT op.*, o.name as organization_name FROM organization_presidents op JOIN organizations o ON o.id = op.organization_id WHERE op.id = ? AND op.is_active = 1');
-            $presStmt->execute([$userId]);
+            // Restore session and verify president is still active
+            $presStmt = $pdo->prepare('SELECT op.*, o.name as organization_name FROM organization_presidents op JOIN organizations o ON o.id = op.organization_id WHERE op.id = ? AND op.is_active = 1 LIMIT 1');
+            $presStmt->execute([(int)$userId]);
             $president = $presStmt->fetch();
             
             if ($president) {
@@ -319,24 +331,34 @@ function verifyRememberMeToken(): bool {
                     'role'              => 'organization_president'
                 ];
                 return true;
+            } else {
+                // President was deactivated - clear token
+                $pdo->prepare('DELETE FROM president_remember_tokens WHERE president_id = ?')->execute([(int)$userId]);
+                setcookie('remember_me_token', '', time() - 3600, '/');
+                return false;
             }
         }
     } elseif ($userType === 'youth') {
         $stmt = $pdo->prepare('SELECT * FROM youth_remember_tokens WHERE youth_id = ? AND token = ? AND expires_at > NOW() LIMIT 1');
-        $stmt->execute([$userId, $hashedToken]);
+        $stmt->execute([(int)$userId, $hashedToken]);
         $record = $stmt->fetch();
         
         if ($record) {
-            // Restore session
-            $youthStmt = $pdo->prepare('SELECT * FROM youth_users WHERE id = ? LIMIT 1');
-            $youthStmt->execute([$userId]);
+            // Restore session and verify youth is still approved
+            $youthStmt = $pdo->prepare('SELECT * FROM youth_users WHERE id = ? AND status = ? LIMIT 1');
+            $youthStmt->execute([(int)$userId, 'approved']);
             $user = $youthStmt->fetch();
             
-            if ($user && $user['status'] === 'approved') {
+            if ($user) {
                 $_SESSION['user_id']    = $user['id'];
                 $_SESSION['user_name']  = $user['first_name'] . ' ' . $user['last_name'];
                 $_SESSION['user_email'] = $user['email'];
                 return true;
+            } else {
+                // Youth user is no longer approved - clear token
+                $pdo->prepare('DELETE FROM youth_remember_tokens WHERE youth_id = ?')->execute([(int)$userId]);
+                setcookie('remember_me_token', '', time() - 3600, '/');
+                return false;
             }
         }
     }
