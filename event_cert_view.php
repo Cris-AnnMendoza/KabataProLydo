@@ -87,11 +87,11 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
 .btn-p{padding:10px 22px;background:#fff;color:#0d3b6e;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;transition:.2s;text-decoration:none}
 .btn-p:hover{background:#e8ecf0}
 .btn-back{padding:10px 22px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:7px}
-.cert-wrap{width:1100px;height:auto;min-height:850px;max-width:100%;background:#faf6f0;position:relative;overflow:hidden;box-shadow:0 12px 60px rgba(13,59,110,.2);aspect-ratio:11/8.5}
+.cert-wrap{width:1100px;height:auto;min-height:850px;max-width:100%;background:#faf6f0;position:relative;overflow:visible;box-shadow:0 12px 60px rgba(13,59,110,.2);aspect-ratio:11/8.5;display:flex;flex-direction:row}
 .cert-border{position:absolute;inset:26px;border:4px double #0d3b6e;pointer-events:none;z-index:2}
 .cert-border::before{content:'';position:absolute;inset:8px;border:1px solid #c8a84b;pointer-events:none}
 .cert-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 10% 10%,rgba(13,59,110,.02) 0%,transparent 40%),radial-gradient(ellipse at 90% 90%,rgba(200,168,75,.02) 0%,transparent 40%)}
-.cert-content{position:relative;z-index:3;padding:48px 64px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:space-between;font-family:'Inter',sans-serif}
+.cert-content{position:relative;z-index:3;padding:48px 64px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:space-between;font-family:'Inter',sans-serif;flex:1}
 .cert-header{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:20px}
 .cert-seal{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.8rem;box-shadow:0 8px 24px rgba(13,59,110,.3);flex-shrink:0;overflow:hidden;border:2px solid rgba(255,255,255,.3)}
 .cert-org-main{font-size:1.15rem;font-weight:900;color:#0d3b6e;letter-spacing:.06em;font-family:'Playfair Display',serif}
@@ -107,8 +107,7 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
 .cert-event{font-weight:900;color:#0d3b6e;font-size:.98rem;text-transform:uppercase;letter-spacing:.02em}
 
 /* Footer */
-.cert-footer{display:grid;grid-template-columns:1fr 180px 1fr;gap:20px;margin-top:16px;align-items:flex-end;width:100%}
-.cert-footer > div:nth-child(2){display:flex;flex-direction:column;align-items:center;gap:16px;justify-content:flex-end;flex-shrink:0;min-width:180px}
+.cert-footer{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:16px;align-items:flex-end;width:100%}
 .cert-sig{text-align:center;font-family:'Inter',sans-serif}
 .cert-sig-line{height:3px;background:#0d3b6e;margin-bottom:6px;width:160px;margin-left:auto;margin-right:auto}
 .cert-sig-name{font-size:.76rem;font-weight:900;color:#0d3b6e;letter-spacing:.02em;text-transform:uppercase}
@@ -117,12 +116,15 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
 .cert-info-label{font-size:.7rem;color:#0d3b6e;text-transform:uppercase;letter-spacing:.1em;font-weight:900}
 .cert-info-val{font-size:.85rem;font-weight:900;color:#0d3b6e;margin-top:5px;font-family:'Courier New',monospace;letter-spacing:.08em}
 
-/* Verification QR */
-.verify-box{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:140px;flex-shrink:0;width:140px}
-.verify-box #certQR{display:block !important;width:140px !important;height:140px !important;flex-shrink:0;margin:0 !important;padding:0 !important;overflow:hidden}
-.verify-box #certQR canvas{width:140px !important;height:140px !important;display:block !important;border:3px solid #0d3b6e;border-radius:6px;padding:6px;background:#fff;box-shadow:0 4px 12px rgba(13,59,110,.15);flex-shrink:0;margin:0 !important;box-sizing:border-box !important}
-.verify-box #certQR img{width:140px !important;height:140px !important;display:none !important}
-.verify-label{font-size:.65rem;color:#0d3b6e;text-align:center;max-width:140px;line-height:1.5;font-weight:800;font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:.05em}
+/* QR Sidebar */
+.cert-qr-sidebar{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:48px 32px;background:linear-gradient(135deg,rgba(13,59,110,.05),rgba(200,168,75,.05));border-left:4px double #0d3b6e;min-width:200px;flex-shrink:0;position:relative;z-index:3}
+.cert-qr-title{font-size:.7rem;color:#0d3b6e;text-transform:uppercase;letter-spacing:.15em;font-weight:900;text-align:center;margin-bottom:8px}
+.verify-box{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:160px;flex-shrink:0;width:160px}
+.verify-box{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:160px;flex-shrink:0;width:160px}
+.verify-box #certQR{display:block !important;width:160px !important;height:160px !important;flex-shrink:0;margin:0 !important;padding:0 !important;overflow:hidden}
+.verify-box #certQR canvas{width:160px !important;height:160px !important;display:block !important;border:4px solid #0d3b6e;border-radius:8px;padding:8px;background:#fff;box-shadow:0 6px 16px rgba(13,59,110,.2);flex-shrink:0;margin:0 !important;box-sizing:border-box !important}
+.verify-box #certQR img{width:160px !important;height:160px !important;display:none !important}
+.verify-label{font-size:.62rem;color:#0d3b6e;text-align:center;max-width:160px;line-height:1.5;font-weight:800;font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:.05em}
 
 .corner{position:absolute;width:40px;height:40px;z-index:4}
 .corner-tl{top:24px;left:24px;border-top:4px solid #0d3b6e;border-left:4px solid #0d3b6e}
@@ -131,30 +133,33 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
 .corner-br{bottom:24px;right:24px;border-bottom:4px solid #0d3b6e;border-right:4px solid #0d3b6e}
 
 @media(max-width:700px){
+  .cert-wrap{flex-direction:column}
   .cert-content{padding:36px 24px}
   .cert-title{font-size:1.8rem}
   .cert-name{font-size:1.6rem;min-width:unset;max-width:100%}
   .cert-body{font-size:.82rem}
   .cert-footer{grid-template-columns:1fr;gap:12px}
   .cert-header{flex-direction:column;gap:12px}
-  .verify-box{gap:8px}
-  .verify-box #certQR{width:120px!important;height:120px!important}
-  .verify-box #certQR canvas{width:120px!important;height:120px!important;border-width:2px}
-  .verify-label{max-width:120px;font-size:.62rem}
+  .cert-qr-sidebar{border-left:none;border-top:4px double #0d3b6e;padding:24px;gap:16px}
+  .verify-box{width:140px}
+  .verify-box #certQR{width:140px!important;height:140px!important}
+  .verify-box #certQR canvas{width:140px!important;height:140px!important;border-width:3px}
+  .verify-label{max-width:140px;font-size:.62rem}
   .cert-sig-line{width:100px}
   .cert-name{min-width:auto}
   .divider{width:120px}
 }
 @media print{
   html,body{width:279mm;height:auto;margin:0;padding:0;background:#fff}
-  body{padding:0;display:block}
+  body{padding:0;display:block;overflow:visible}
   .print-bar{display:none!important}
-  .cert-wrap{box-shadow:none;width:279mm;height:auto;max-width:none;page-break-after:avoid;page-break-inside:avoid;background:#fef8f3;margin:0;aspect-ratio:11/8.5}
+  .cert-wrap{box-shadow:none;width:279mm;height:auto;max-width:none;page-break-after:avoid;page-break-inside:avoid;background:#fef8f3;margin:0;overflow:visible}
   .cert-content{page-break-inside:avoid;overflow:visible;height:auto}
   .cert-footer{page-break-inside:avoid}
+  .cert-qr-sidebar{border-left:4px double #0d3b6e;page-break-inside:avoid;flex-shrink:0}
   .verify-box{page-break-inside:avoid;flex-shrink:0}
-  .verify-box #certQR{width:140px!important;height:140px!important;flex-shrink:0}
-  .verify-box #certQR canvas{width:140px!important;height:140px!important}
+  .verify-box #certQR{width:160px!important;height:160px!important;flex-shrink:0}
+  .verify-box #certQR canvas{width:160px!important;height:160px!important}
   @page{size:279mm 216mm landscape;margin:0;padding:0}
 }
 </style>
@@ -227,23 +232,6 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
         <div class="cert-sig-title">Youth Coordinator<br>Local Youth Development Office</div>
       </div>
 
-      <!-- Center: cert info + verification QR -->
-      <div style="display:flex;flex-direction:column;align-items:center;gap:16px;justify-content:flex-end">
-        <div class="cert-info-box">
-          <div class="cert-info-label">Certificate No.</div>
-          <div class="cert-info-val"><?= htmlspecialchars($certNo) ?></div>
-          <div style="margin-top:12px;padding-top:12px;border-top:2px solid #0d3b6e">
-            <div class="cert-info-label">Date Issued</div>
-            <div class="cert-info-val" style="font-family:'Inter',sans-serif;letter-spacing:0;margin-top:6px"><?= $issueDate ?></div>
-          </div>
-        </div>
-        <!-- Verification QR - single scanable QR code -->
-        <div class="verify-box" id="verifyBoxContainer">
-          <div id="certQR"></div>
-          <div class="verify-label">Scan to verify</div>
-        </div>
-      </div>
-
       <div class="cert-sig">
         <div style="height:28px"></div>
         <div class="cert-sig-line"></div>
@@ -253,6 +241,25 @@ body{font-family:'Playfair Display',serif;background:#f5f1e8;display:flex;flex-d
     </div>
 
   </div>
+
+  <!-- QR Code Sidebar -->
+  <div class="cert-qr-sidebar">
+    <div class="cert-qr-title">Verify Certificate</div>
+    <div class="cert-info-box" style="border:2px solid #0d3b6e;padding:12px 16px">
+      <div class="cert-info-label">Certificate No.</div>
+      <div class="cert-info-val" style="font-size:.82rem"><?= htmlspecialchars($certNo) ?></div>
+      <div style="margin-top:10px;padding-top:10px;border-top:2px solid #0d3b6e">
+        <div class="cert-info-label" style="font-size:.65rem">Issued</div>
+        <div class="cert-info-val" style="font-family:'Inter',sans-serif;letter-spacing:0;margin-top:4px;font-size:.78rem"><?= $issueDate ?></div>
+      </div>
+    </div>
+    <!-- Verification QR - single scanable QR code -->
+    <div class="verify-box" id="verifyBoxContainer">
+      <div id="certQR"></div>
+      <div class="verify-label">Scan to verify</div>
+    </div>
+  </div>
+
 </div>
 
 <script>
