@@ -93,7 +93,7 @@ body{font-family:'Inter',sans-serif;background:#f0f0f0;display:flex;flex-directi
 .org-name{font-size:1.2rem;font-weight:900;color:#0d3b6e;font-family:'Playfair Display',serif;line-height:1.1}
 .org-sub{font-size:.95rem;color:#0d3b6e;font-weight:700;margin-top:2px}
 .org-addr{font-size:.85rem;color:#666;margin-top:2px}
-.seal-right{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#2e7d32,#43a047);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;flex-shrink:0}
+.seal-right{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#2e7d32,#43a047);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.6rem;flex-shrink:0}
 .divider{height:1px;background:linear-gradient(90deg,transparent,#0d3b6e 20%,#c8a84b 50%,#0d3b6e 80%,transparent);margin:8px 32px 0}
 .cert-body{padding:0 32px;flex:1;display:flex;flex-direction:column;justify-content:center;text-align:center;position:relative}
 .cert-type{font-size:1rem;font-weight:900;letter-spacing:.25em;text-transform:uppercase;color:#c8a84b;margin-bottom:8px}
@@ -103,13 +103,13 @@ body{font-family:'Inter',sans-serif;background:#f0f0f0;display:flex;flex-directi
 .location{font-size:1rem;color:#555;margin-top:8px}
 .content-text{font-size:1.08rem;color:#333;line-height:1.8;margin:16px 0}
 .event-highlight{font-weight:900;color:#0d3b6e;font-size:1.2rem;text-transform:uppercase}
-.footer-container{display:grid;grid-template-columns:1fr auto;align-items:flex-end;justify-items:center;gap:80px;padding:20px 32px 16px;position:relative;width:100%;grid-auto-flow:row}
-.footer-sigs{display:flex;gap:140px;justify-content:center;grid-column:1}
+.footer-container{display:grid;grid-template-columns:auto 1fr auto;align-items:flex-end;gap:20px;padding:20px 32px 16px;position:relative;width:100%}
+.footer-sigs{display:flex;gap:140px;justify-content:center;grid-column:2;justify-self:center}
 .sig-block{text-align:center;flex-direction:column;display:flex;align-items:center}
 .sig-line{height:2px;background:#0d3b6e;margin-bottom:5px;width:150px;margin-left:auto;margin-right:auto}
 .sig-name{font-size:.92rem;font-weight:900;color:#0d3b6e;letter-spacing:.02em;text-transform:uppercase;margin-top:4px}
 .sig-title{font-size:.85rem;color:#555;line-height:1.5;font-weight:600}
-.qr-area{width:160px;display:flex;flex-direction:column;align-items:center;gap:10px;grid-column:2;grid-row:1}
+.qr-area{width:160px;display:flex;flex-direction:column;align-items:center;gap:10px;grid-column:3;grid-row:1;justify-self:end}
 .qr-box{width:145px;height:145px;display:flex;align-items:center;justify-content:center;border:1px solid #c8a84b;border-radius:4px;background:#fafafa}
 #certQR{display:block !important;width:140px !important;height:140px !important;margin:0 !important;padding:0 !important}
 #certQR canvas{width:140px !important;height:140px !important;display:block !important;border:none;background:#fff}
